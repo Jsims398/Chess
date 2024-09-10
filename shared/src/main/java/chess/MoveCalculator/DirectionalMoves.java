@@ -7,14 +7,14 @@ import java.util.HashSet;
 public class DirectionalMoves {
     private static int BoardHight = 8;
     private static int BoardWidth = 8;
-    private static int max = 8;
 
-    public static void Down(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves) {
+
+    public static void Down(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves, int max) {
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
 
         int k = 0;
-        for (int i = PieceRow - 1; i >= 0; i--) {
+        for (int i = PieceRow - 1; i > 0; i--) {
 
             if(k == max) break;
 
@@ -36,12 +36,12 @@ public class DirectionalMoves {
         }
     }
 
-    public static void Up(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves) {
+    public static void Up(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves, int max) {
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
 
         int k = 0;
-        for (int i = PieceRow + 1; i < BoardWidth; i++) {
+        for (int i = PieceRow + 1; i <= BoardWidth; i++) {
 
             if (k == max) break;
 
@@ -59,12 +59,12 @@ public class DirectionalMoves {
         }
     }
 
-    public static void Left(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves){
+    public static void Left(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves, int max){
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
         int k = 0;
 
-        for (int j = PieceCol - 1; j >= 0; j--) {
+        for (int j = PieceCol - 1; j > 0; j--) {
             if(k == max) break;
 
             ChessPosition newPosition = new ChessPosition(PieceRow, j);
@@ -83,12 +83,12 @@ public class DirectionalMoves {
         }
     }
 
-    public static void Right(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves){
+    public static void Right(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves, int max){
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
         int k = 0;
 
-        for (int j = PieceCol + 1; j < BoardWidth; j++) {
+        for (int j = PieceCol + 1; j <= BoardWidth; j++) {
             if(k == max) break;
 
             ChessPosition newPosition = new ChessPosition(PieceRow, j);
@@ -107,7 +107,7 @@ public class DirectionalMoves {
         }
     }
 
-    public static void UpRight(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves){
+    public static void UpRight(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves, int max){
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
         int k = 0;
@@ -132,7 +132,7 @@ public class DirectionalMoves {
         }
     }
 
-    public static void UpLeft(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves){
+    public static void UpLeft(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves, int max){
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
         int k = 0;
@@ -156,7 +156,7 @@ public class DirectionalMoves {
         }
     }
 
-    public static void DownLeft(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves){
+    public static void DownLeft(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves,int max){
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
         int k = 0;
@@ -180,12 +180,12 @@ public class DirectionalMoves {
         }
     }
 
-    public static void DownRight(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves){
+    public static void DownRight(ChessBoard board, ChessPosition position, ChessGame.TeamColor color, HashSet<ChessMove> moves,int max){
         int PieceRow = position.getRow();
         int PieceCol = position.getColumn();
         int k = 0;
 
-        for (int i = PieceRow - 1, j = PieceCol + 1; i >= 0 && j <= BoardWidth; i--, j++) {
+        for (int i = PieceRow - 1, j = PieceCol + 1; i > 0 && j <= BoardWidth; i--, j++) {
             if(k == max) break;
 
             ChessPosition newPosition = new ChessPosition(i, j);

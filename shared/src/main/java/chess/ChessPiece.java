@@ -61,20 +61,45 @@ public class ChessPiece {
         ChessGame.TeamColor color = getTeamColor();
 
 //        System.out.println(piece);
+        int max;
         switch (piece){
             case KING:
+                max = 1;
+                DirectionalMoves.UpRight(board, myPosition, color, moves, max);
+                DirectionalMoves.DownRight(board, myPosition, color, moves, max);
+                DirectionalMoves.DownLeft(board, myPosition, color, moves, max);
+                DirectionalMoves.UpLeft(board, myPosition, color, moves, max);
+                DirectionalMoves.Up(board, myPosition, color, moves, max);
+                DirectionalMoves.Down(board, myPosition, color, moves, max);
+                DirectionalMoves.Right(board, myPosition, color, moves, max);
+                DirectionalMoves.Left(board, myPosition, color, moves, max);
                 break;
             case QUEEN:
+                max = 8;
+                DirectionalMoves.UpRight(board, myPosition, color, moves, max);
+                DirectionalMoves.DownRight(board, myPosition, color, moves, max);
+                DirectionalMoves.DownLeft(board, myPosition, color, moves, max);
+                DirectionalMoves.UpLeft(board, myPosition, color, moves, max);
+                DirectionalMoves.Up(board, myPosition, color, moves, max);
+                DirectionalMoves.Down(board, myPosition, color, moves, max);
+                DirectionalMoves.Right(board, myPosition, color, moves, max);
+                DirectionalMoves.Left(board, myPosition, color, moves, max);
                 break;
             case BISHOP:
-                DirectionalMoves.UpRight(board, myPosition, color, moves);
-                DirectionalMoves.DownRight(board, myPosition, color, moves);
-                DirectionalMoves.DownLeft(board, myPosition, color, moves);
-                DirectionalMoves.UpLeft(board, myPosition, color, moves);
+                max = 8;
+                DirectionalMoves.UpRight(board, myPosition, color, moves, max);
+                DirectionalMoves.DownRight(board, myPosition, color, moves, max);
+                DirectionalMoves.DownLeft(board, myPosition, color, moves, max);
+                DirectionalMoves.UpLeft(board, myPosition, color, moves, max);
                 break;
             case KNIGHT:
                 break;
             case ROOK:
+                max = 8;
+                DirectionalMoves.Up(board, myPosition, color, moves, max);
+                DirectionalMoves.Down(board, myPosition, color, moves, max);
+                DirectionalMoves.Right(board, myPosition, color, moves, max);
+                DirectionalMoves.Left(board, myPosition, color, moves, max);
                 break;
             case PAWN:
                 break;
