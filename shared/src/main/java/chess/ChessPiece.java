@@ -93,6 +93,7 @@ public class ChessPiece {
                 DirectionalMoves.UpLeft(board, myPosition, color, moves, max);
                 break;
             case KNIGHT:
+                DirectionalMoves.KnightMove(board, myPosition,color,moves);
                 break;
             case ROOK:
                 max = 8;
@@ -104,11 +105,6 @@ public class ChessPiece {
             case PAWN:
                 break;
         }
-
-
-
-
-
         return moves;
     }
 }

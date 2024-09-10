@@ -39,4 +39,8 @@ public class ChessBoard {
     public void resetBoard() {
         throw new RuntimeException("Not implemented");
     }
+
+    public boolean isValidPosition(int row, int col) {
+        return row > 0 && row <= 8 && col > 0 && col <= 8;
+    }
 }
