@@ -109,12 +109,17 @@ public class ChessPiece {
         }
         return moves;
     }
+
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
+    public boolean equals(Object check) {
+        if (this == check)
+            return true;
+        if (check == null || getClass() != check.getClass())
+            return false;
+
+        ChessPiece piece = (ChessPiece) check;
+
+        return pieceColor == piece.pieceColor && type == piece.type;
     }
 
     @Override
