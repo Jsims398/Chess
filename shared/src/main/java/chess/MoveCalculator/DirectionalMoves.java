@@ -1,7 +1,6 @@
 package chess.MoveCalculator;
 
 import chess.*;
-
 import java.util.HashSet;
 
 public class DirectionalMoves {
