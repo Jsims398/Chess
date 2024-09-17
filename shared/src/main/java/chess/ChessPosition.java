@@ -42,9 +42,9 @@ public class ChessPosition {
         if (check == null || getClass() != check.getClass())
             return false;
 
-        ChessPosition that = (ChessPosition) check;
+        ChessPosition position = (ChessPosition) check;
 
-        return row == that.row && col == that.col;
+        return row == position.row && col == position.col;
     }
 
     @Override
