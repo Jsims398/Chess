@@ -21,10 +21,12 @@ public class DirectionalMoves {
 
             if (board.getPiece(newPosition) == null) {
                 moves.add(new ChessMove(position, newPosition, null));
-            } else if (board.getPiece(newPosition).getTeamColor() != color) {
+            }
+            else if (board.getPiece(newPosition).getTeamColor() != color) {
                 moves.add(new ChessMove(position, newPosition, null));
                 break;
-            } else {
+            }
+            else {
                 break;
             }
             k++;
