@@ -134,16 +134,21 @@ public class ChessGame {
                 }
             }
         }
+        if (kingPosition == null) {
+            return false;
+        }
+        TeamColor enemyColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
 
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
-                ChessPiece currentPiece = board.getPiece(new ChessPosition(i, j));
-                if (currentPiece == null || currentPiece.getTeamColor() == teamColor) {
-                    continue;
-                }
-                for (ChessMove enemyMove : currentPiece.pieceMoves(board, new ChessPosition(i, j))) {
-                    if (enemyMove.getEndPosition().equals(kingPosition)) {
-                        return true;
+                ChessPosition currentPosition = new ChessPosition(i, j);
+                ChessPiece currentPiece = board.getPiece(currentPosition);
+                if (currentPiece != null && currentPiece.getTeamColor() == enemyColor) {
+                    Collection<ChessMove> moves = currentPiece.pieceMoves(board, currentPosition);
+                    for (ChessMove move : moves) {
+                        if (move.getEndPosition().equals(kingPosition)) {
+                            return true;
+                        }
                     }
                 }
             }
