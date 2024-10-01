@@ -14,10 +14,10 @@ public class ChessGame {
 
     private TeamColor turn;
     private ChessBoard board;
-    private boolean gameStatus;
 
     public ChessGame() {
         board = new ChessBoard();
+        board.resetBoard(); //talk to TA about this...
         setTeamTurn(TeamColor.WHITE);
     }
 
@@ -71,7 +71,7 @@ public class ChessGame {
 
         for(ChessMove move : p_moves){
             ChessPiece tempPiece = board.getPiece(move.getEndPosition());
-            board.addPiece(startPosition, null);//removes piece in start spot
+            board.addPiece(startPosition, null);
             board.addPiece(move.getEndPosition(), current);
 
             if (!isInCheck(current.getTeamColor())) {
@@ -176,7 +176,7 @@ public class ChessGame {
 
                 if (currentPiece != null && teamColor == currentPiece.getTeamColor()) {
                     moves = validMoves(currentPosition);
-                    if (!moves.isEmpty()) {
+                    if (moves != null && !moves.isEmpty()) {
                         return false;
                     }
                 }
