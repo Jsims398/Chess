@@ -67,7 +67,7 @@ public class ChessGame {
             return null;
         }
         HashSet<ChessMove> p_moves = (HashSet<ChessMove>) board.getPiece(startPosition).pieceMoves(board, startPosition);
-        HashSet<ChessMove> v_moves = HashSet.newHashSet(p_moves.size());
+        HashSet<ChessMove> v_moves = new HashSet<>(p_moves.size());
 
         for(ChessMove move : p_moves){
             ChessPiece tempPiece = board.getPiece(move.getEndPosition());
@@ -134,6 +134,7 @@ public class ChessGame {
                 }
             }
         }
+
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPiece currentPiece = board.getPiece(new ChessPosition(i, j));
@@ -157,7 +158,23 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheck(teamColor) && isInStalemate(teamColor);
+        if (!isInCheck(teamColor)) {
+            return false;
+        }
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition currentPosition = new ChessPosition(i, j);
+                ChessPiece currentPiece = board.getPiece(currentPosition);
+
+                if (currentPiece != null && currentPiece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(currentPosition);
+                    if (moves != null && !moves.isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
