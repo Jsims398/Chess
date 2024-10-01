@@ -107,5 +107,13 @@ public class ChessBoard {
                 "squares=" + Arrays.deepToString(squares) +
                 '}';
     }
+
+    public ChessGame.TeamColor getTeamPosition(ChessPosition startPosition) {
+        if(getPiece(startPosition) != null){
+            return getPiece(startPosition).getTeamColor();
+        }
+        else
+            return null;
+        }
 }
 
