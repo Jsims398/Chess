@@ -9,4 +9,7 @@ public class ChessService {
     public ChessService(DataAccess dataAccess){
         this.dataAccess = dataAccess;
     }
+
+    // A more complicated application would do the business logic in this
+    // service.
 }

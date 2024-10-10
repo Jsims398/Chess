@@ -17,15 +17,16 @@ public class Main {
 //               dataAccess = new MySqlDataAccess();
 //            }
 
-            var service = new ChessService(dataAcess);
-            var server = new Server(service).run(port);
-            port = server.port();
+//            var service = new ChessService(dataAcess);
+//            var server = new Server(service).run(port);
+            var server = new Server().run(port);
+            port = server;
 
             System.out.printf("Server started on port %d with %s%n", port, dataAccess.getClass());
-            return;
 
             var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
             System.out.println("♕ 240 Chess Server: " + piece);
+            return;
         }
         catch(Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
