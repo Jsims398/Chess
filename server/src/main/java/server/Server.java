@@ -18,6 +18,20 @@ public class Server {
     UserHandler userHandler;
     GameHandler gameHandler;
 
+    public Server() {
+
+        userDAO = new MemoryUserDAO();
+        authDAO = new MemoryAuthDAO();
+        gameDAO = new MemoryGameDAO();
+
+        userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(gameDAO, authDAO);
+
+        userHandler = new UserHandler(userService);
+        gameHandler = new GameHandler(gameService);
+
+    }
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
