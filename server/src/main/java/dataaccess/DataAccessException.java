@@ -8,3 +8,4 @@ public class DataAccessException extends Exception{
         super(message);
     }
 }
+
