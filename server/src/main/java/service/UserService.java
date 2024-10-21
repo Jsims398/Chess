@@ -13,7 +13,7 @@ public class UserService {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
-
+    //createUser
     public AuthData createUser(UserData user) throws BadRequestException {
 
         try {
@@ -29,5 +29,9 @@ public class UserService {
 
         return authData;
     }
+    //login
+    //logout
+    //clear
+
 
 }
