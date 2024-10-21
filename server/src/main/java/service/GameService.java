@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.*;
+import passoff.dataaccess.GameDAO;
 
 import java.util.HashSet;
 import java.util.Objects;

@@ -1,5 +1,6 @@
-package dataaccess;
+package passoff.dataaccess;
 
+import dataaccess.DataAccessException;
 import model.GameData;
 import java.util.HashSet;
 

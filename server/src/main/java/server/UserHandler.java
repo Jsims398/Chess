@@ -31,9 +31,9 @@ public class UserHandler {
     }
 
     //login
-    public Object login(Request request, Response response) throws UnauthorizedException, BadRequestException {
+    public Object login(Request request, Response response) throws UnauthorizedException {
         UserData user = new Gson().fromJson(request.body(), UserData.class);
-        AuthData auth = userService.login(user);
+        AuthData auth = userService.loginUser(user);
         response.status(200);
         return new Gson().toJson(auth);
     }

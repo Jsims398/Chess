@@ -1,5 +1,6 @@
 package server;
 
+import passoff.dataaccess.GameDAO;
 import spark.*;
 import dataaccess.*;
 import service.GameService;
