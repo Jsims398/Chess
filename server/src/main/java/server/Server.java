@@ -20,7 +20,7 @@ public class Server {
     GameHandler gameHandler;
 
     public Server() {
-
+// get everything
         userDAO = new UserDAOMemory();
         authDAO = new AuthDAOMemory();
         gameDAO = new GameDAOMemory();
@@ -32,7 +32,6 @@ public class Server {
         gameHandler = new GameHandler(gameService);
 
     }
-
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -51,16 +50,13 @@ public class Server {
         Spark.exception(UnauthorizedException.class, this::unauthorizedExceptionHandler);
         Spark.exception(Exception.class, this::genericExceptionHandler);
 
-
         Spark.awaitInitialization();
         return Spark.port();
     }
-
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
     }
-
     private Object clear(Request req, Response resp) {
 
         userService.clear();

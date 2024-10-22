@@ -31,28 +31,13 @@ public class UserDAOMemory implements UserDAO {
             database.add(user);
             return;
         }
-
         throw new DataAccessException("User already exists: " + user.username());
     }
     //authUser
     @Override
     public boolean authenticateUser(String username, String password) throws DataAccessException {
-        boolean userExists = false;
-        for (UserData user : database) {
-            if (user.username().equals(username)) {
-                userExists = true;
-            }
-            if (user.username().equals(username) &&
-                    user.password().equals(password)) {
-                return true;
-            }
-        }
-        if (userExists) {
-            return false;
-        }
-        else {
-            throw new DataAccessException("User does not exist: " + username);
-        }
+        UserData user = getUser(username);
+        return user.password().equals(password);
     }
     //clear
     @Override

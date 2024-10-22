@@ -1,7 +1,8 @@
 package service;
 
 import dataaccess.*;
-import model.*;
+import model.AuthData;
+import model.UserData;
 
 import java.util.UUID;
 
@@ -31,15 +32,15 @@ public class UserService {
     }
     //login
     public AuthData loginUser(UserData user) throws UnauthorizedException{
-        boolean authentucated = false;
+        boolean authenticated;
         try {
-            authentucated = userDAO.authenticateUser(user.username(), user.password());
+            authenticated = userDAO.authenticateUser(user.username(), user.password());
         }
         catch (DataAccessException exception) {
             throw new UnauthorizedException();
         }
 
-        if (authentucated) {
+        if (authenticated) {
             String authToken = UUID.randomUUID().toString();
             AuthData authData = new AuthData(user.username(), authToken);
             authDAO.addAuth(authData);
@@ -50,11 +51,9 @@ public class UserService {
         }
     }
     //logout
-    public void logoutUser(String authentication) throws UnauthorizedException {
-        try {
-            authDAO.getAuth(authentication);
-        }
-        catch (DataAccessException exception) {
+    public void logoutUser(String authentication) throws UnauthorizedException, DataAccessException {
+        AuthData authData = authDAO.getAuth(authentication);
+        if (authData == null) {
             throw new UnauthorizedException();
         }
         authDAO.deleteAuth(authentication);

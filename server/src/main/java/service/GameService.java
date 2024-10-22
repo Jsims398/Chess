@@ -5,7 +5,6 @@ import model.*;
 import dataaccess.GameDAO;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameService {
@@ -18,27 +17,35 @@ public class GameService {
         this.authDAO = authDAO;
     }
     public HashSet<GameData> listGames(String authToken) throws UnauthorizedException {
+        AuthData authData;
         try {
-            authDAO.getAuth(authToken);
+            authData = authDAO.getAuth(authToken);
+            if (authData == null) {
+                throw new UnauthorizedException();
+            }
         } catch (DataAccessException exception) {
             throw new UnauthorizedException();
         }
         return gameDAO.listGames();
     }
-
     //create games
     public int createGame(String authentication, String name)throws UnauthorizedException, BadRequestException{
-        if(name == null){
+        if (authentication == null) {
+            throw new UnauthorizedException();
+        }
+        if(name == null || name.isBlank()){
             throw new BadRequestException("Game name is empty");
         }
-
+        AuthData authData;
         try {
-            authDAO.getAuth(authentication);
+            authData = authDAO.getAuth(authentication);
         }
         catch (DataAccessException exception) {
             throw new UnauthorizedException();
         }
-
+        if(authData == null){
+            throw new UnauthorizedException();
+        }
         int gameID;
         do {
             gameID = ThreadLocalRandom.current().nextInt(1, 100);
@@ -51,39 +58,40 @@ public class GameService {
     }
 
     //join games
-    public boolean joinGame(String authentication, int gameID, String color) throws UnauthorizedException, BadRequestException {
-        AuthData authData;
-        GameData gameData;
-        try {
-            authData = authDAO.getAuth(authentication);
-        } catch (DataAccessException exception) {
+    public boolean joinGame(String authentication, int gameID, String color) throws UnauthorizedException, BadRequestException, DataAccessException {
+        AuthData authData = authDAO.getAuth(authentication);
+        if (authData == null) {
             throw new UnauthorizedException();
         }
-
+        GameData gameData;
         try {
             gameData = gameDAO.getGame(gameID);
-        } catch (DataAccessException exception) {
+        }
+        catch (DataAccessException exception) {
             throw new BadRequestException(exception.getMessage());
         }
-
         String whitePlayer = gameData.whiteUsername();
         String blackPlayer = gameData.blackUsername();
-
-        if (Objects.equals(color, "WHITE")) {
+        if (color == null || (!color.equals("WHITE") && !color.equals("BLACK"))) {
+            throw new BadRequestException("Invalid or missing team color: " + color);
+        }
+        if (color.equals("WHITE")) {
             if (whitePlayer != null) return false;
             else whitePlayer = authData.username();
-        } else if (Objects.equals(color, "BLACK")) {
-            if (blackPlayer != null) return false;
-            else blackPlayer = authData.username();
-        } else if (color != null) throw new BadRequestException("%s is not a valid team color".formatted(color));
-
+        }
+        else {
+            if (blackPlayer != null) {
+                return false;
+            } else {
+                blackPlayer = authData.username();
+            }
+        }
         gameDAO.updateGame(new GameData(gameID, whitePlayer, blackPlayer, gameData.gameName(), gameData.game()));
         return true;
     }
-
-
     //clear
     public void clear(){
         gameDAO.clear();
+        authDAO.clear();
     }
 }

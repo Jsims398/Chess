@@ -4,9 +4,7 @@ import dataaccess.*;
 import service.GameService;
 import spark.*;
 import model.GameData;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 
 import java.util.HashSet;
 
@@ -25,42 +23,52 @@ public class GameHandler {
     }
     //creategames
     public Object createGame(Request request, Response response) throws BadRequestException, UnauthorizedException {
+        System.out.println("Auth header: " + request.headers("authorization"));
+        System.out.println("Request body: " + request.body());
         String authToken = request.headers("authorization");
+        if (authToken == null) {
+            response.status(401);
+            throw new UnauthorizedException();
+        }
         try {
-            JsonObject jsonObject = new Gson().fromJson(request.body(), JsonObject.class);
-            if (!jsonObject.has("gameName")) {
-                throw new BadRequestException("No gameName provided");
+            JsonObject gameRequest = new Gson().fromJson(request.body(), JsonObject.class);
+            if (gameRequest == null || !gameRequest.has("gameName")) {
+                throw new BadRequestException("Missing game name");
             }
-            String gameName = jsonObject.get("gameName").getAsString();
+            String gameName = gameRequest.get("gameName").getAsString();
             int gameID = gameService.createGame(authToken, gameName);
             response.status(200);
-            return """
-               {"gameID": %d}
-               """.formatted(gameID);
+            return "{\"gameID\": " + gameID + "}";
         }
-        catch (JsonSyntaxException e) {
-            throw new BadRequestException("Invalid JSON format");
+        catch (JsonSyntaxException exception) {
+            response.status(400);
+            return "{\"message\": \"Bad Request: Invalid JSON format\"}";
+        }
+        catch (BadRequestException exception) {
+            response.status(400);
+            return "{\"message\": \"Bad Request: " + exception.getMessage() + "\"}";
         }
     }
     //joingame
-    public Object joinGame(Request request, Response response) throws BadRequestException, UnauthorizedException {
-        //base case
-        if (!request.body().contains("gameID:")) {
-            throw new BadRequestException("No gameID provided");
-        }
+    public Object joinGame(Request request, Response response) throws BadRequestException, UnauthorizedException, DataAccessException {
+//        System.out.println("Auth header: " + request.headers("authorization"));
+//        System.out.println("Request body: " + request.body());
+//        if (!request.body().contains("gameID:")) {
+//            throw new BadRequestException("No gameID provided");
+//        }
         //authentication
         String auth = request.headers("authorization");
+        if (auth == null) {
+            throw new UnauthorizedException();
+        }
         record JoinGameData(String playerColor, int gameID) {
         }
-
         JoinGameData data = new Gson().fromJson(request.body(), JoinGameData.class);
         boolean success = gameService.joinGame(auth, data.gameID(), data.playerColor());
-
-        if (success == false) {
+        if (!success) {
             response.status(403);
-            return "{message: Error: already taken}";
+            return "{\"message\": \"Error: already taken\"}";
         }
-
         response.status(200);
         return "{}";
     }

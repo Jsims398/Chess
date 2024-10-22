@@ -8,11 +8,9 @@ import spark.*;
 
 public class UserHandler {
     UserService userService;
-
     public UserHandler(UserService userService) {
         this.userService = userService;
     }
-
     //register
     public Object register(Request request, Response response) throws BadRequestException {
         UserData user = new Gson().fromJson(request.body(), UserData.class);
@@ -29,7 +27,6 @@ public class UserHandler {
             return "{\"message\": \"Error: already taken\"}";
         }
     }
-
     //login
     public Object login(Request request, Response response) throws UnauthorizedException {
         UserData user = new Gson().fromJson(request.body(), UserData.class);
@@ -38,7 +35,7 @@ public class UserHandler {
         return new Gson().toJson(auth);
     }
     //logout
-    public Object logout(Request request, Response responce) throws UnauthorizedException{
+    public Object logout(Request request, Response responce) throws UnauthorizedException, DataAccessException {
         String auth = request.headers("authorization");
         userService.logoutUser(auth);
         responce.status(200);

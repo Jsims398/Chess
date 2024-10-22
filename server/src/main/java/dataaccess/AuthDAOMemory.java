@@ -1,47 +1,28 @@
 package dataaccess;
 
 import model.AuthData;
-
-import java.util.HashSet;
+import java.util.HashMap;
 
 public class AuthDAOMemory implements AuthDAO {
+    private final HashMap<String, AuthData> database = new HashMap<>();
 
-    HashSet<AuthData> database;
-//    public MemoryAuthDAO(){
-//        database = HashSet.newHashSet(20);
-//    }
-
-    //    createAuth
     @Override
-    public AuthData getAuth(String authentucation) throws DataAccessException {
-        for (AuthData code : database) {
-            if (code.authToken().equals(authentucation)) {
-                return code;
-            }
-        }
-        throw new DataAccessException("Auth Token does not exist: " + authentucation);
+    public AuthData getAuth(String authToken){
+        return database.get(authToken);
     }
-    //    getAuth
+
     @Override
     public void addAuth(AuthData authData) {
-        database.add(authData);
+        database.put(authData.authToken(), authData);
     }
-    //    deleteAuth
+
     @Override
-    public void deleteAuth(String authentication) {
-        for (AuthData data : database) {
-            if (data.authToken().equals(authentication)) {
-                database.remove(data);
-                break;
-            }
-        }
+    public void deleteAuth(String authToken) {
+        database.remove(authToken);
     }
 
     @Override
     public void clear() {
-        database = HashSet.newHashSet(20);
+        database.clear();
     }
 }
-
-
-
