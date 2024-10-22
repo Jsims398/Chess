@@ -12,7 +12,10 @@ public class AuthDAOMemory implements AuthDAO {
     }
 
     @Override
-    public void addAuth(AuthData authData) {
+    public void addAuth(AuthData authData) throws BadRequestException {
+        if (authData.authToken() == null || authData.authToken().isEmpty()){
+            throw new BadRequestException("AuthToken can't be null");
+        }
         database.put(authData.authToken(), authData);
     }
 

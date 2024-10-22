@@ -16,7 +16,9 @@ public class UserService {
     }
     //createUser
     public AuthData createUser(UserData user) throws BadRequestException {
-
+        if(user.username() == null || user.password() == null || user.email() == null){
+            throw new BadRequestException("User information incomplete");
+        }
         try {
             userDAO.createUser(user);
         }
@@ -31,7 +33,7 @@ public class UserService {
         return authData;
     }
     //login
-    public AuthData loginUser(UserData user) throws UnauthorizedException{
+    public AuthData loginUser(UserData user) throws UnauthorizedException, BadRequestException {
         boolean authenticated;
         try {
             authenticated = userDAO.authenticateUser(user.username(), user.password());

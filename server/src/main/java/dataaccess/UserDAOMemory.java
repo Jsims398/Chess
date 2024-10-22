@@ -15,6 +15,9 @@ public class UserDAOMemory implements UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         for (UserData user : database) {
+            if(user.username() == null || user.username().isEmpty()){
+                throw new DataAccessException("Username is empty");
+            }
             if (user.username().equals(username)) {
                 return user;
             }
