@@ -5,6 +5,8 @@ import service.GameService;
 import spark.*;
 import model.GameData;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 import java.util.HashSet;
 
@@ -22,17 +24,23 @@ public class GameHandler {
         return "{games: %s}".formatted(new Gson().toJson(games));
     }
     //creategames
-    public Object createGame(Request req, Response resp) throws BadRequestException, UnauthorizedException {
-
-        if (!req.body().contains("gameName:")) {
-            throw new BadRequestException("No gameName provided");
+    public Object createGame(Request request, Response response) throws BadRequestException, UnauthorizedException {
+        String authToken = request.headers("authorization");
+        try {
+            JsonObject jsonObject = new Gson().fromJson(request.body(), JsonObject.class);
+            if (!jsonObject.has("gameName")) {
+                throw new BadRequestException("No gameName provided");
+            }
+            String gameName = jsonObject.get("gameName").getAsString();
+            int gameID = gameService.createGame(authToken, gameName);
+            response.status(200);
+            return """
+               {"gameID": %d}
+               """.formatted(gameID);
         }
-
-        String authToken = req.headers("authorization");
-        int gameID =  gameService.createGame(authToken);
-
-        resp.status(200);
-        return "{gameID: %d }".formatted(gameID);
+        catch (JsonSyntaxException e) {
+            throw new BadRequestException("Invalid JSON format");
+        }
     }
     //joingame
     public Object joinGame(Request request, Response response) throws BadRequestException, UnauthorizedException {

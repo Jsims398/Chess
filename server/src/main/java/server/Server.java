@@ -1,6 +1,6 @@
 package server;
 
-import passoff.dataaccess.GameDAO;
+import dataaccess.GameDAO;
 import spark.*;
 import dataaccess.*;
 import service.GameService;
@@ -72,16 +72,16 @@ public class Server {
 //handle exceptions
     private void badRequestExceptionHandler(BadRequestException ex, Request req, Response resp) {
         resp.status(400);
-        resp.body("{message: Error: bad request}");
+        resp.body("{\"message\": \"Error: bad request\"}");
     }
 
     private void unauthorizedExceptionHandler(UnauthorizedException ex, Request req, Response resp) {
         resp.status(401);
-        resp.body("{message: Error: unauthorized}");
+        resp.body("{\"message\": \"Error: unauthorized\"}");
     }
 
     private void genericExceptionHandler(Exception ex, Request req, Response resp) {
         resp.status(500);
-        resp.body("{message: Error: %s}".formatted(ex.getMessage()));
+        resp.body("{\"message\": \"Error: %s\"}".formatted(ex.getMessage()));
     }
 }

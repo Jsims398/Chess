@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.GameData;
-import passoff.dataaccess.GameDAO;
 
 import java.util.HashSet;
 

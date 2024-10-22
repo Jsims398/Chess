@@ -26,7 +26,7 @@ public class UserHandler {
             return new Gson().toJson(authData);
         } catch (BadRequestException s) {
             response.status(403);
-            return "{message: Error: already taken}";
+            return "{\"message\": \"Error: already taken\"}";
         }
     }
 

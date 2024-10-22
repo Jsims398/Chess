@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.*;
-import passoff.dataaccess.GameDAO;
+import dataaccess.GameDAO;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -27,19 +27,25 @@ public class GameService {
     }
 
     //create games
-    public int createGame(String authentication)throws UnauthorizedException{
+    public int createGame(String authentication, String name)throws UnauthorizedException, BadRequestException{
+        if(name == null){
+            throw new BadRequestException("Game name is empty");
+        }
+
         try {
             authDAO.getAuth(authentication);
-        } catch (DataAccessException exception) {
+        }
+        catch (DataAccessException exception) {
             throw new UnauthorizedException();
         }
 
         int gameID;
         do {
             gameID = ThreadLocalRandom.current().nextInt(1, 100);
-        } while (gameDAO.gameExists(gameID));
+        }
+        while (gameDAO.gameExists(gameID));
 
-        gameDAO.createGame(new GameData(gameID, null, null, null, null));
+        gameDAO.createGame(new GameData(gameID, null, null, name, null));
 
         return gameID;
     }
