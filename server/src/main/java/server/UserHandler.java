@@ -11,7 +11,7 @@ public class UserHandler {
     public UserHandler(UserService userService) {
         this.userService = userService;
     }
-    //register
+    // register
     public Object register(Request request, Response response) throws BadRequestException {
         UserData user = new Gson().fromJson(request.body(), UserData.class);
 
