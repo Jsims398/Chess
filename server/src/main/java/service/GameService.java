@@ -76,8 +76,8 @@ public class GameService {
             throw new BadRequestException("Invalid or missing team color: " + color);
         }
         if (color.equals("WHITE")) {
-            if (whitePlayer != null) return false;
-            else whitePlayer = authData.username();
+            if (whitePlayer != null){ return false;}
+            else {whitePlayer = authData.username();}
         }
         else {
             if (blackPlayer != null) {

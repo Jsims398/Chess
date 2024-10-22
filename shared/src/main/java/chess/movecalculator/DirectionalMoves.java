@@ -101,7 +101,7 @@ public class DirectionalMoves {
             if ((color == ChessGame.TeamColor.BLACK && pieceRow == 7) || (color == ChessGame.TeamColor.WHITE && pieceRow == 2)) {
                 ChessPosition doubleStepPosition = new ChessPosition(pieceRow + 2 * direction, pieceCol);
 
-                if (board.isValidPosition(doubleStepPosition.getRow(), doubleStepPosition.getColumn()) && board.getPiece(doubleStepPosition) == null) {
+                if(board.isValidPosition(doubleStepPosition.getRow(),doubleStepPosition.getColumn())&&board.getPiece(doubleStepPosition)==null){
                     moves.add(new ChessMove(position, doubleStepPosition, null));
                 }
             }

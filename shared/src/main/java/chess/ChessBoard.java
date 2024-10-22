@@ -86,11 +86,11 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object check) {
-        if (this == check)
-            return true;
-        if (check == null || getClass() != check.getClass())
+        if (this == check){
+            return true;}
+        if (check == null || getClass() != check.getClass()) {
             return false;
-
+        }
         ChessBoard board = (ChessBoard) check;
 
         return Arrays.deepEquals(this.squares, board.squares);
@@ -112,8 +112,8 @@ public class ChessBoard {
         if(getPiece(startPosition) != null){
             return getPiece(startPosition).getTeamColor();
         }
-        else
-            return null;
+        else{
+            return null;}
         }
 }
 

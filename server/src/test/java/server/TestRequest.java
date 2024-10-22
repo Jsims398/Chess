@@ -1,11 +1,9 @@
-package passoff;
+package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.*;
-import server.GameHandler;
-import server.UserHandler;
 import service.*;
 import spark.*;
 import java.util.HashSet;

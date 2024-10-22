@@ -1,4 +1,4 @@
-package passoff;
+package dao;
 
 import chess.ChessGame;
 import model.*;
