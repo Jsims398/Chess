@@ -51,11 +51,6 @@ public class GameHandler {
     }
     //joingame
     public Object joinGame(Request request, Response response) throws BadRequestException, UnauthorizedException, DataAccessException {
-//        System.out.println("Auth header: " + request.headers("authorization"));
-//        System.out.println("Request body: " + request.body());
-//        if (!request.body().contains("gameID:")) {
-//            throw new BadRequestException("No gameID provided");
-//        }
         //authentication
         String auth = request.headers("authorization");
         if (auth == null) {

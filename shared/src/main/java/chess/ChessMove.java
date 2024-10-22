@@ -46,16 +46,23 @@ public class ChessMove {
 
     @Override
     public boolean equals(Object check) {
-        if (this == check)
+        if (this == check) {
             return true;
-
-        if (check == null || getClass() != check.getClass())
+        }
+        if (check == null || getClass() != check.getClass()) {
             return false;
-
+        }
         ChessMove chessMove = (ChessMove) check;
 
-        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+        return areEqual(startPosition, chessMove.startPosition) &&
+                areEqual(endPosition, chessMove.endPosition) &&
+                promotionPiece == chessMove.promotionPiece;
     }
+
+    private boolean areEqual(Object a, Object b) {
+        return Objects.equals(a, b);
+    }
+
 
     @Override
     public int hashCode() {

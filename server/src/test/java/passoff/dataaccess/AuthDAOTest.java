@@ -25,7 +25,7 @@ class AuthDAOTest {
     }
 
     @Test
-    void getAuth_success() throws DataAccessException {
+    void getAuthsuccess() {
         authDAO.addAuth(testAuth);
         AuthData retrieved = authDAO.getAuth(testAuth.authToken());
         assertNotNull(retrieved);
@@ -34,13 +34,13 @@ class AuthDAOTest {
     }
 
     @Test
-    void getAuth_nonexistent() {
+    void getAuthnonexistent() {
         assertThrows(DataAccessException.class, () ->
                 authDAO.getAuth("nonexistentToken"));
     }
 
     @Test
-    void addAuth_success() {
+    void addAuthsuccess() {
         assertDoesNotThrow(() -> {
             authDAO.addAuth(testAuth);
             AuthData retrieved = authDAO.getAuth(testAuth.authToken());
@@ -49,7 +49,7 @@ class AuthDAOTest {
     }
 
     @Test
-    void deleteAuth_success() {
+    void deleteAuthsuccess() {
         authDAO.addAuth(testAuth);
         authDAO.deleteAuth(testAuth.authToken());
         assertThrows(DataAccessException.class, () ->
@@ -57,12 +57,12 @@ class AuthDAOTest {
     }
 
     @Test
-    void deleteAuth_nonexistent() {
+    void deleteAuthnonexistent() {
         assertDoesNotThrow(() -> authDAO.deleteAuth("nonexistentToken"));
     }
 
     @Test
-    void clear_success() {
+    void clearsuccess() {
         authDAO.addAuth(testAuth);
         authDAO.addAuth(new AuthData("anotherToken", "anotherUser"));
 

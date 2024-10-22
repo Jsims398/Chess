@@ -36,12 +36,12 @@ public class ChessPosition {
 
     @Override
     public boolean equals(Object check) {
-        if (this == check)
+        if (this == check) {
             return true;
-
-        if (check == null || getClass() != check.getClass())
+        }
+        if (check == null || getClass() != check.getClass()) {
             return false;
-
+        }
         ChessPosition position = (ChessPosition) check;
 
         return row == position.row && col == position.col;

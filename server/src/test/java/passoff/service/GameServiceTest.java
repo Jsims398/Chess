@@ -64,7 +64,7 @@ class GameServiceTest {
     }
 
     @Test
-    void createGame_withUnauthorizedException() {
+    void createGamewithUnauthorizedException() {
         // Arrange
         String authToken = null; // No authentication token
         String gameName = "Game1";
@@ -74,7 +74,7 @@ class GameServiceTest {
     }
 
     @Test
-    void createGame_withBadRequestException() {
+    void createGamewithBadRequestException() {
         // Arrange
         String authToken = "validToken";
         authDAO.addAuth(new AuthData("user1", authToken)); // Simulate an authenticated user
@@ -102,7 +102,7 @@ class GameServiceTest {
     }
 
     @Test
-    void joinGame_withColorAlreadyTaken() throws UnauthorizedException, BadRequestException, DataAccessException {
+    void joinGamewithColorAlreadyTaken() throws UnauthorizedException, BadRequestException, DataAccessException {
         // Arrange
         String authToken = "validToken";
         authDAO.addAuth(new AuthData("user1", authToken)); // Simulate an authenticated user
@@ -117,7 +117,7 @@ class GameServiceTest {
     }
 
     @Test
-    void joinGame_withBadRequestException() throws UnauthorizedException, BadRequestException {
+    void joinGamewithBadRequestException() throws UnauthorizedException, BadRequestException {
         // Arrange
         String authToken = "validToken";
         authDAO.addAuth(new AuthData("user1", authToken)); // Simulate an authenticated user

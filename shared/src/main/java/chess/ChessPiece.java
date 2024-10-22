@@ -1,6 +1,6 @@
 package chess;
 
-import chess.MoveCalculator.DirectionalMoves;
+import chess.movecalculator.DirectionalMoves;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -66,45 +66,45 @@ public class ChessPiece {
         switch (piece){
             case KING:
                 max = 1;
-                DirectionalMoves.UpRight(board, myPosition, color, moves, max);
-                DirectionalMoves.DownRight(board, myPosition, color, moves, max);
-                DirectionalMoves.DownLeft(board, myPosition, color, moves, max);
-                DirectionalMoves.UpLeft(board, myPosition, color, moves, max);
-                DirectionalMoves.Up(board, myPosition, color, moves, max);
-                DirectionalMoves.Down(board, myPosition, color, moves, max);
-                DirectionalMoves.Right(board, myPosition, color, moves, max);
-                DirectionalMoves.Left(board, myPosition, color, moves, max);
+                DirectionalMoves.upright(board, myPosition, color, moves, max);
+                DirectionalMoves.downright(board, myPosition, color, moves, max);
+                DirectionalMoves.downleft(board, myPosition, color, moves, max);
+                DirectionalMoves.upleft(board, myPosition, color, moves, max);
+                DirectionalMoves.up(board, myPosition, color, moves, max);
+                DirectionalMoves.down(board, myPosition, color, moves, max);
+                DirectionalMoves.right(board, myPosition, color, moves, max);
+                DirectionalMoves.left(board, myPosition, color, moves, max);
                 break;
             case QUEEN:
                 max = 8;
-                DirectionalMoves.UpRight(board, myPosition, color, moves, max);
-                DirectionalMoves.DownRight(board, myPosition, color, moves, max);
-                DirectionalMoves.DownLeft(board, myPosition, color, moves, max);
-                DirectionalMoves.UpLeft(board, myPosition, color, moves, max);
-                DirectionalMoves.Up(board, myPosition, color, moves, max);
-                DirectionalMoves.Down(board, myPosition, color, moves, max);
-                DirectionalMoves.Right(board, myPosition, color, moves, max);
-                DirectionalMoves.Left(board, myPosition, color, moves, max);
+                DirectionalMoves.upright(board, myPosition, color, moves, max);
+                DirectionalMoves.downright(board, myPosition, color, moves, max);
+                DirectionalMoves.downleft(board, myPosition, color, moves, max);
+                DirectionalMoves.upleft(board, myPosition, color, moves, max);
+                DirectionalMoves.up(board, myPosition, color, moves, max);
+                DirectionalMoves.down(board, myPosition, color, moves, max);
+                DirectionalMoves.right(board, myPosition, color, moves, max);
+                DirectionalMoves.left(board, myPosition, color, moves, max);
                 break;
             case BISHOP:
                 max = 8;
-                DirectionalMoves.UpRight(board, myPosition, color, moves, max);
-                DirectionalMoves.DownRight(board, myPosition, color, moves, max);
-                DirectionalMoves.DownLeft(board, myPosition, color, moves, max);
-                DirectionalMoves.UpLeft(board, myPosition, color, moves, max);
+                DirectionalMoves.upright(board, myPosition, color, moves, max);
+                DirectionalMoves.downright(board, myPosition, color, moves, max);
+                DirectionalMoves.downleft(board, myPosition, color, moves, max);
+                DirectionalMoves.upleft(board, myPosition, color, moves, max);
                 break;
             case KNIGHT:
-                DirectionalMoves.KnightMove(board, myPosition,color,moves);
+                DirectionalMoves.knightmove(board, myPosition,color,moves);
                 break;
             case ROOK:
                 max = 8;
-                DirectionalMoves.Up(board, myPosition, color, moves, max);
-                DirectionalMoves.Down(board, myPosition, color, moves, max);
-                DirectionalMoves.Right(board, myPosition, color, moves, max);
-                DirectionalMoves.Left(board, myPosition, color, moves, max);
+                DirectionalMoves.up(board, myPosition, color, moves, max);
+                DirectionalMoves.down(board, myPosition, color, moves, max);
+                DirectionalMoves.right(board, myPosition, color, moves, max);
+                DirectionalMoves.left(board, myPosition, color, moves, max);
                 break;
             case PAWN:
-                DirectionalMoves.PawnMove(board, myPosition,color,moves);
+                DirectionalMoves.pawnmove(board, myPosition,color,moves);
                 break;
         }
         return moves;
@@ -112,10 +112,10 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object check) {
-        if (this == check)
-            return true;
-        if (check == null || getClass() != check.getClass())
-            return false;
+        if (this == check){
+            return true;}
+        if (check == null || getClass() != check.getClass()){
+            return false;}
 
         ChessPiece piece = (ChessPiece) check;
 

@@ -25,27 +25,27 @@ class UserDAOTest {
     }
 
     @Test
-    void getUser_success() throws DataAccessException {
+    void getUsersuccess() throws DataAccessException {
         userDAO.createUser(testUser);
         UserData retrieved = userDAO.getUser(testUser.username());
         assertEquals(testUser, retrieved);
     }
 
     @Test
-    void getUser_nonexistent() {
+    void getUsernonexistent() {
         assertThrows(DataAccessException.class, () ->
                 userDAO.getUser("nonexistentUser"));
     }
 
     @Test
-    void createUser_success() throws DataAccessException {
+    void createUsersuccess() throws DataAccessException {
         assertDoesNotThrow(() -> userDAO.createUser(testUser));
         UserData retrieved = userDAO.getUser(testUser.username());
         assertEquals(testUser, retrieved);
     }
 
     @Test
-    void createUser_duplicate() {
+    void createUserduplicate() {
         assertThrows(DataAccessException.class, () -> {
             userDAO.createUser(testUser);
             userDAO.createUser(testUser);
@@ -53,25 +53,25 @@ class UserDAOTest {
     }
 
     @Test
-    void authenticateUser_success() throws DataAccessException {
+    void authenticateUsersuccess() throws DataAccessException {
         userDAO.createUser(testUser);
         assertTrue(userDAO.authenticateUser(testUser.username(), testUser.password()));
     }
 
     @Test
-    void authenticateUser_wrongPassword() throws DataAccessException {
+    void authenticateUserwrongPassword() throws DataAccessException {
         userDAO.createUser(testUser);
         assertFalse(userDAO.authenticateUser(testUser.username(), "wrongPassword"));
     }
 
     @Test
-    void authenticateUser_nonexistentUser() {
+    void authenticateUsernonexistentUser() {
         assertThrows(DataAccessException.class, () ->
                 userDAO.authenticateUser("nonexistentUser", "anyPassword"));
     }
 
     @Test
-    void clear_success() throws DataAccessException {
+    void clearsuccess() throws DataAccessException {
         userDAO.createUser(testUser);
         userDAO.clear();
         assertThrows(DataAccessException.class, () ->
