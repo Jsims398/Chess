@@ -21,7 +21,7 @@ class DAOTests {
         @Nested
         class PositiveTests {
             @Test
-            void addAuth_success() {
+            void addAuthsuccess() {
                 assertDoesNotThrow(() -> authDAO.addAuth(testAuth));
                 AuthData retrieved = assertDoesNotThrow(() -> authDAO.getAuth(testAuth.authToken()));
                 assertEquals(testAuth.authToken(), retrieved.authToken());
@@ -29,7 +29,7 @@ class DAOTests {
             }
 
             @Test
-            void getAuth_success() {
+            void getAuthsuccess() {
                 assertDoesNotThrow(() -> authDAO.addAuth(testAuth));
                 AuthData retrieved = assertDoesNotThrow(() -> authDAO.getAuth(testAuth.authToken()));
                 assertNotNull(retrieved);
@@ -54,14 +54,14 @@ class DAOTests {
         @Nested
         class PositiveTests {
             @Test
-            void listGames_empty() {
+            void listGamesempty() {
                 var games = gameDAO.listGames();
                 assertNotNull(games);
                 assertTrue(games.isEmpty());
             }
 
             @Test
-            void listGames_multiple() {
+            void listGamesmultiple() {
                 gameDAO.createGame(testGame);
                 gameDAO.createGame(secondGame);
                 var games = gameDAO.listGames();
@@ -71,14 +71,14 @@ class DAOTests {
             }
 
             @Test
-            void createGame_success() throws DataAccessException {
+            void createGamesuccess() throws DataAccessException {
                 assertDoesNotThrow(() -> gameDAO.createGame(testGame));
                 GameData retrieved = gameDAO.getGame(testGame.gameID());
                 assertEquals(testGame, retrieved);
             }
 
             @Test
-            void updateGame_success() throws DataAccessException {
+            void updateGamesuccess() throws DataAccessException {
                 gameDAO.createGame(testGame);
                 GameData updatedGame = new GameData(
                     testGame.gameID(),
@@ -96,7 +96,7 @@ class DAOTests {
         @Nested
         class NegativeTests {
             @Test
-            void getGame_nonexistent() {
+            void getGamenonexistent() {
                 assertThrows(DataAccessException.class, () -> gameDAO.getGame(999));
             }
         }
@@ -115,27 +115,27 @@ class DAOTests {
         @Nested
         class PositiveTests {
             @Test
-            void createUser_success() throws DataAccessException {
+            void createUsersuccess() throws DataAccessException {
                 assertDoesNotThrow(() -> userDAO.createUser(testUser));
                 UserData retrieved = userDAO.getUser(testUser.username());
                 assertEquals(testUser, retrieved);
             }
 
             @Test
-            void getUser_success() throws DataAccessException {
+            void getUsersuccess() throws DataAccessException {
                 userDAO.createUser(testUser);
                 UserData retrieved = userDAO.getUser(testUser.username());
                 assertEquals(testUser, retrieved);
             }
 
             @Test
-            void authenticateUser_success() throws DataAccessException {
+            void authenticateUsersuccess() throws DataAccessException {
                 userDAO.createUser(testUser);
                 assertTrue(userDAO.authenticateUser(testUser.username(), testUser.password()));
             }
 
             @Test
-            void clear_success() throws DataAccessException {
+            void clearsuccess() throws DataAccessException {
                 userDAO.createUser(testUser);
                 userDAO.clear();
                 assertThrows(DataAccessException.class, () ->
@@ -146,20 +146,20 @@ class DAOTests {
         @Nested
         class NegativeTests {
             @Test
-            void createUser_duplicate() {
+            void createUserduplicate() {
                 assertDoesNotThrow(() -> userDAO.createUser(testUser));
                 UserData duplicateUser = new UserData(testUser.username(), "differentPassword", "other@example.com");
                 assertThrows(DataAccessException.class, () -> userDAO.createUser(duplicateUser));
             }
 
             @Test
-            void getUser_nonExistent() {
+            void getUsernonExistent() {
                 assertThrows(DataAccessException.class, () ->
                     userDAO.getUser("nonexistentUser"));
             }
 
             @Test
-            void authenticateUser_wrongPassword() throws DataAccessException {
+            void authenticateUserwrongPassword() throws DataAccessException {
                 userDAO.createUser(testUser);
                 assertFalse(userDAO.authenticateUser(testUser.username(), "wrongPassword"));
             }
@@ -168,13 +168,13 @@ class DAOTests {
         @Nested
         class EdgeCases {
             @Test
-            void authenticateUser_emptyPassword() throws DataAccessException {
+            void authenticateUseremptyPassword() throws DataAccessException {
                 userDAO.createUser(testUser);
                 assertFalse(userDAO.authenticateUser(testUser.username(), ""));
             }
 
             @Test
-            void createUser_afterClear() {
+            void createUserafterClear() {
                 assertDoesNotThrow(() -> {
                     userDAO.createUser(testUser);
                     userDAO.clear();

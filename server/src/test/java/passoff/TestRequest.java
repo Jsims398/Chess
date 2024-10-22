@@ -13,7 +13,6 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// Test implementation of Request class
 class TestRequest extends Request {
     private final HashMap<String, String> headers = new HashMap<>();
     private String body;
@@ -37,7 +36,6 @@ class TestRequest extends Request {
     }
 }
 
-// Test implementation of Response class
 class TestResponse extends Response {
     private int statusCode;
 
@@ -51,7 +49,6 @@ class TestResponse extends Response {
     }
 }
 
-// Test implementation of UserService
 class TestUserService extends UserService {
     private boolean throwAuthError = false;
 
@@ -84,7 +81,6 @@ class TestUserService extends UserService {
     }
 }
 
-// Test implementation of GameService
 class TestGameService extends GameService {
     private boolean throwAuthError = false;
     private final boolean throwBadRequestError = false;
@@ -150,31 +146,23 @@ class UserHandlerTest {
     }
 
     @Test
-    void register_success() throws BadRequestException {
-        // Arrange
+    void registersuccess() throws BadRequestException {
         UserData userData = new UserData("testUser", "password", "email@test.com");
         request.setBody(new Gson().toJson(userData));
-
-        // Act
         Object result = userHandler.register(request, response);
-
-        // Assert
         assertEquals(200, response.getStatus());
         assertTrue(result.toString().contains("testToken"));
     }
 
     @Test
-    void register_failure_missingFields() {
-        // Arrange
+    void registerfailuremissingFields() {
         UserData userData = new UserData(null, null, "email@test.com");
         request.setBody(new Gson().toJson(userData));
-
-        // Act & Assert
         assertThrows(BadRequestException.class, () -> userHandler.register(request, response));
     }
 
     @Test
-    void login_success() throws UnauthorizedException, BadRequestException {
+    void loginsuccess() throws UnauthorizedException, BadRequestException {
         UserData userData = new UserData("testUser", "password", "email@test.com");
         request.setBody(new Gson().toJson(userData));
         Object result = userHandler.login(request, response);
@@ -183,34 +171,25 @@ class UserHandlerTest {
     }
 
     @Test
-    void login_failure() {
+    void loginfailure() {
         UserData userData = new UserData("testUser", "wrongPassword", "email@test.com");
         request.setBody(new Gson().toJson(userData));
         userService.setThrowAuthError(true);
-        // Act & Assert
         assertThrows(UnauthorizedException.class, () -> userHandler.login(request, response));
     }
 
     @Test
-    void logout_success() throws UnauthorizedException, DataAccessException {
-        // Arrange
+    void logoutsuccess() throws UnauthorizedException, DataAccessException {
         request.setHeader("authorization", "validToken");
-
-        // Act
         Object result = userHandler.logout(request, response);
-
-        // Assert
         assertEquals(200, response.getStatus());
         assertEquals("{}", result);
     }
 
     @Test
-    void logout_failure() {
-        // Arrange
+    void logoutfailure() {
         request.setHeader("authorization", "invalidToken");
         userService.setThrowAuthError(true);
-
-        // Act & Assert
         assertThrows(UnauthorizedException.class, () -> userHandler.logout(request, response));
     }
 }
@@ -230,77 +209,52 @@ class GameHandlerTest {
     }
 
     @Test
-    void listGames_success() throws UnauthorizedException {
-        // Arrange
+    void listGamessuccess() throws UnauthorizedException {
         request.setHeader("authorization", "validToken");
 
-        // Act
         Object result = gameHandler.listGames(request, response);
-
-        // Assert
         assertEquals(200, response.getStatus());
         assertTrue(result.toString().contains("TestGame"));
     }
 
     @Test
-    void listGames_failure() {
-        // Arrange
+    void listGamesfailure() {
         request.setHeader("authorization", "invalidToken");
         gameService.setThrowAuthError(true);
-
-        // Act & Assert
         assertThrows(UnauthorizedException.class, () -> gameHandler.listGames(request, response));
     }
 
     @Test
-    void createGame_success() throws UnauthorizedException, BadRequestException {
-        // Arrange
+    void createGamesuccess() throws UnauthorizedException, BadRequestException {
         request.setHeader("authorization", "validToken");
         request.setBody("{\"gameName\":\"TestGame\"}");
-
-        // Act
         Object result = gameHandler.createGame(request, response);
-
-        // Assert
         assertEquals(200, response.getStatus());
         assertTrue(result.toString().contains("\"gameID\": 1"));
     }
 
     @Test
-    void createGame_failure_unauthorized() {
-        // Arrange
+    void createGamefailureunauthorized() {
         request.setHeader("authorization", null);
-
-        // Act & Assert
         assertThrows(UnauthorizedException.class, () -> gameHandler.createGame(request, response));
         assertEquals(401, response.getStatus());
     }
 
     @Test
-    void joinGame_success() throws UnauthorizedException, BadRequestException, DataAccessException {
-        // Arrange
+    void joinGamesuccess() throws UnauthorizedException, BadRequestException, DataAccessException {
         request.setHeader("authorization", "validToken");
         request.setBody("{\"playerColor\":\"WHITE\",\"gameID\":1}");
-
-        // Act
         Object result = gameHandler.joinGame(request, response);
-
-        // Assert
         assertEquals(200, response.getStatus());
         assertEquals("{}", result);
     }
 
     @Test
-    void joinGame_failure_colorTaken() throws UnauthorizedException, BadRequestException, DataAccessException {
-        // Arrange
+    void joinGamefailurecolorTaken() throws UnauthorizedException, BadRequestException, DataAccessException {
         request.setHeader("authorization", "validToken");
         request.setBody("{\"playerColor\":\"WHITE\",\"gameID\":1}");
         gameService.setJoinGameSuccess(false);
-
-        // Act
         Object result = gameHandler.joinGame(request, response);
-
-        // Assert
         assertEquals(403, response.getStatus());
         assertTrue(result.toString().contains("already taken"));
     }
