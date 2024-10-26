@@ -65,7 +65,7 @@ public class Server {
         resp.status(200);
         return "{}";
     }
-//handle exceptions
+    //handle exceptions
     private void badRequestExceptionHandler(BadRequestException ex, Request req, Response resp) {
         resp.status(400);
         resp.body("{\"message\": \"Error: bad request\"}");
