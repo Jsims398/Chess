@@ -15,14 +15,23 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userDAO = new UserDAOMemory();
-        authDAO = new AuthDAOMemory();
+        try {
+            userDAO = new UserSQLDAO();
+            authDAO = new AuthSQLDAO();
+        }
+        catch (DataAccessException e){
+            System.out.println("couldnt start SQL");
+        }
         userService = new UserService(userDAO, authDAO);
     }
 
     @AfterEach
     void tearDown() {
-        userDAO.clear();
+        try {
+            userDAO.clear();
+        } catch (DataAccessException exception) {
+            throw new RuntimeException(exception);
+        }
         authDAO.clear();
     }
 
@@ -95,9 +104,14 @@ class GameServiceTest {
 
     @BeforeEach
     void setUp() {
-        gameDAO = new GameDAOMemory();
-        authDAO = new AuthDAOMemory();
-        gameService = new GameService(gameDAO, authDAO);
+        try {
+            gameDAO = new GameSQLDAO();
+            authDAO = new AuthSQLDAO();
+        }
+        catch (DataAccessException e){
+            System.out.println("failed to load databases");
+        }
+            gameService = new GameService(gameDAO, authDAO);
     }
 
     @AfterEach

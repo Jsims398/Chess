@@ -1,8 +1,9 @@
 package dataaccess;
 
+
 import model.UserData;
 
-import java.sql.*;
+import java.sql.SQLException;
 
 public class UserSQLDAO implements UserDAO {
 
@@ -10,96 +11,90 @@ public class UserSQLDAO implements UserDAO {
         configureDatabase();
     }
 
-    private void configureDatabase() throws DataAccessException {
-        String query = """
-            CREATE TABLE IF NOT EXISTS users (
-                `id` int NOT NULL AUTO_INCREMENT,
-                `username` varchar(256) NOT NULL,
-                `password` varchar(256) NOT NULL,
-                `email` varchar(256),
-                PRIMARY KEY (`id`)
+    private final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  users (
+              `name` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`name`),
+              INDEX(name)
             )
-        """;
-
-        try (var connection = DatabaseManager.getConnection();
-             var statement = connection.prepareStatement(query)) {
-            statement.executeUpdate();
-        } catch (SQLException exception) {
-            throw new DataAccessException("Failed to configure database");
+            """
+    };
+    private void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        }
+        catch (SQLException exception) {
+            throw new DataAccessException("Unable to configure User database");
         }
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        String query = "SELECT * FROM users WHERE name = ?";
+        final String query = "SELECT * FROM users WHERE name = ?";
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(query)) {
-
             statement.setString(1, username);
-
             try (var result = statement.executeQuery()) {
                 if (result.next()) {
-                    return new UserData(
-                            result.getString("name"),
+                    return new UserData(result.getString("name"),
                             result.getString("password"),
-                            result.getString("email")
-                    );
+                            result.getString("email"));
                 }
-                else {
-                    return null;
-                }
+                return null;
             }
-        } catch (SQLException exception) {
-            throw new DataAccessException("Failed to get user");
+        }
+        catch (SQLException exception) {
+            throw new DataAccessException("Error retrieving user");
         }
     }
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-
-        String insertStatement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-
+        final String query = "INSERT INTO users (name, password, email) VALUES (?, ?, ?)";
         try (var connection = DatabaseManager.getConnection();
-             var preparedStatement = connection.prepareStatement(insertStatement)) {
-
-            preparedStatement.setString(1, user.username());
-            preparedStatement.setString(2, user.password());
-            preparedStatement.setString(3, user.email());
-            preparedStatement.executeUpdate();
+             var statement = connection.prepareStatement(query)) {
+            statement.setString(1, user.username());
+            statement.setString(2, user.password());
+            statement.setString(3, user.email());
+            statement.executeUpdate();
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Failed to create user");
+            throw new DataAccessException("Error creating user");
         }
     }
 
     @Override
     public boolean authenticateUser(String username, String password) throws DataAccessException {
-        String query = "SELECT * FROM users WHERE name = ? AND password = ?";
+        final String query = "SELECT * FROM users WHERE name = ? AND password = ?";
         try (var connection = DatabaseManager.getConnection();
-             var preparedStatement = connection.prepareStatement(query)) {
-
-            preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
-
-            try (var resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next(); // If a row is returned, the user is authenticated
+             var statement = connection.prepareStatement(query)) {
+            statement.setString(1, username);
+            statement.setString(2, password);
+            try (var result = statement.executeQuery()) {
+                return result.next();
             }
-        }
-        catch (SQLException exception) {
-            throw new DataAccessException("Failed to authenticate user");
+        } catch (SQLException exception) {
+            throw new DataAccessException("Error authenticating user");
         }
     }
 
     @Override
     public void clear() throws DataAccessException {
-        String truncateStatement = "TRUNCATE TABLE users";
+        final String query = "TRUNCATE TABLE users";
         try (var connection = DatabaseManager.getConnection();
-             var preparedStatement = connection.prepareStatement(truncateStatement)) {
-
-            preparedStatement.executeUpdate();
-        }
-        catch (SQLException exception) {
-            throw new DataAccessException("Failed to clear users");
+             var statement = connection.prepareStatement(query)) {
+            statement.executeUpdate();
+        } catch (SQLException | DataAccessException exception) {
+            throw new DataAccessException("Error clearing User SQL");
         }
     }
+
 }

@@ -14,7 +14,12 @@ class DAOTests {
         private final AuthData testAuth = new AuthData("test-token-123", "testUser");
         @BeforeEach
         void setUp() {
-            authDAO = new AuthDAOMemory();
+            try {
+                authDAO = new AuthSQLDAO();
+            }
+            catch (DataAccessException e){
+                System.out.println("couldnt start SQL");
+            }
             authDAO.clear();
         }
 
@@ -47,7 +52,12 @@ class DAOTests {
 
         @BeforeEach
         void setUp() {
-            gameDAO = new GameDAOMemory();
+            try {
+                gameDAO = new GameSQLDAO();
+            }
+            catch (DataAccessException e){
+                System.out.println("couldnt start SQL");
+            }
             gameDAO.clear();
         }
 
@@ -108,8 +118,17 @@ class DAOTests {
         private final UserData testUser = new UserData("testUser", "password123", "test@example.com");
         @BeforeEach
         void setUp() {
-            userDAO = new UserDAOMemory();
-            userDAO.clear();
+            try{
+                userDAO = new UserSQLDAO();
+            }
+            catch (DataAccessException e){
+                System.out.println("could start SQL");
+            }
+            try {
+                userDAO.clear();
+            } catch (DataAccessException exception) {
+                throw new RuntimeException(exception);
+            }
         }
 
         @Nested

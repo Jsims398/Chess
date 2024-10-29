@@ -64,9 +64,9 @@ public class UserService {
     public void clear() {
         try {
             userDAO.clear();
-            authDAO.clear();
         } catch (DataAccessException exception) {
-            throw new RuntimeException("Unable to clear Auth and User");
+            throw new RuntimeException(exception);
         }
+        authDAO.clear();
     }
 }

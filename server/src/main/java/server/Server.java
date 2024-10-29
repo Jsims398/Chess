@@ -21,10 +21,14 @@ public class Server {
 
     public Server() {
 // get everything
-        userDAO = new UserDAOMemory();
-        authDAO = new AuthDAOMemory();
-        gameDAO = new GameDAOMemory();
-
+        try {
+            userDAO = new UserSQLDAO();
+            authDAO = new AuthSQLDAO();
+            gameDAO = new GameSQLDAO();
+        }
+        catch (DataAccessException exception){
+            System.out.println("failed to start memory");
+        }
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
 
