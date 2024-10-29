@@ -61,10 +61,12 @@ public class UserService {
         authDAO.deleteAuth(authentication);
     }
     //clear
-    public void clear(){
-        userDAO.clear();
-        authDAO.clear();
+    public void clear() {
+        try {
+            userDAO.clear();
+            authDAO.clear();
+        } catch (DataAccessException exception) {
+            throw new RuntimeException("Unable to clear Auth and User");
+        }
     }
-
-
 }

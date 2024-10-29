@@ -10,6 +10,6 @@ public interface UserDAO {
 
     boolean authenticateUser(String username, String password) throws DataAccessException;
 
-    void clear();
+    void clear() throws DataAccessException;
 
 }
