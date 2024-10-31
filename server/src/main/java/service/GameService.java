@@ -72,6 +72,7 @@ public class GameService {
         }
         String whitePlayer = gameData.whiteUsername();
         String blackPlayer = gameData.blackUsername();
+
         if (color == null || (!color.equals("WHITE") && !color.equals("BLACK"))) {
             throw new BadRequestException("Invalid or missing team color: " + color);
         }
@@ -86,8 +87,13 @@ public class GameService {
                 blackPlayer = authData.username();
             }
         }
-        gameDAO.updateGame(new GameData(gameID, whitePlayer, blackPlayer, gameData.gameName(), gameData.game()));
-        return true;
+        try {
+            gameDAO.updateGame(new GameData(gameID, whitePlayer, blackPlayer, gameData.gameName(), gameData.game()));
+            return true;
+        }
+        catch(DataAccessException exception){
+            throw new BadRequestException("Failed to update/find game");
+        }
     }
     //clear
     public void clear(){

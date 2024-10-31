@@ -9,9 +9,9 @@ import service.UserService;
 
 public class Server {
     //DAO's
-    UserDAO userDAO;
-    AuthDAO authDAO;
-    GameDAO gameDAO;
+    private UserDAO userDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
     //Service's
     UserService userService;
     GameService gameService;
@@ -22,18 +22,18 @@ public class Server {
     public Server() {
 // get everything
         try {
-            userDAO = new UserSQLDAO();
-            authDAO = new AuthSQLDAO();
-            gameDAO = new GameSQLDAO();
+            this.userDAO = new UserSQLDAO();
+            this.authDAO = new AuthSQLDAO();
+            this.gameDAO = new GameSQLDAO();
         }
         catch (DataAccessException exception){
             System.out.println("failed to start memory");
         }
-        userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(gameDAO, authDAO);
+        this.userService = new UserService(userDAO, authDAO);
+        this.gameService = new GameService(gameDAO, authDAO);
 
-        userHandler = new UserHandler(userService);
-        gameHandler = new GameHandler(gameService);
+        this.userHandler = new UserHandler(userService);
+        this.gameHandler = new GameHandler(gameService);
 
     }
     public int run(int desiredPort) {

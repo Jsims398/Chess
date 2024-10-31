@@ -3,6 +3,7 @@ package dataaccess;
 import com.google.gson.Gson;
 import model.GameData;
 import chess.ChessGame;
+
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class GameSQLDAO implements GameDAO {
 
     @Override
     public HashSet<GameData> listGames(){
-        var result = new ArrayList<GameData>();
+        var result = new HashSet<GameData>();
         var statement = "SELECT id,whiteUsername,blackUsername,gameName,json FROM games";
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
@@ -66,7 +67,7 @@ public class GameSQLDAO implements GameDAO {
         } catch (SQLException | DataAccessException e) {
             System.out.println("couldnt list games");
         }
-        return null;
+        return result;
     }
 
     @Override
@@ -124,23 +125,24 @@ public class GameSQLDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(GameData game) {
+    public void updateGame(GameData game) throws DataAccessException {
         String query = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, json = ? WHERE id = ?";
 
-        try (var conn = DatabaseManager.getConnection();
-             var preparedStatement = conn.prepareStatement(query)) {
-            preparedStatement.setInt(1, game.gameID());
-            preparedStatement.setString(2, game.whiteUsername());
-            preparedStatement.setString(3, game.blackUsername());
-            preparedStatement.setString(4, game.gameName());
-            preparedStatement.setString(5, new Gson().toJson(game));
+        try (var connection = DatabaseManager.getConnection();
+             var statement = connection.prepareStatement(query)) {
+            statement.setString(1, game.whiteUsername());
+            statement.setString(2, game.blackUsername());
+            statement.setString(3, game.gameName());
+            statement.setString(4, new Gson().toJson(game));
+            statement.setInt(5, game.gameID());
 
-            int rowsAffected = preparedStatement.executeUpdate();
+            int rowsAffected = statement.executeUpdate();
+
             if (rowsAffected == 0) {
-                createGame(game);
+                throw new DataAccessException("Game not found");
+                }
             }
-        }
-        catch (SQLException | DataAccessException e) {
+        catch(SQLException exception) {
             System.out.println("failed to update game");
         }
     }

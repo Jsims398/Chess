@@ -2,7 +2,7 @@ package dataaccess;
 
 
 import model.UserData;
-
+import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 
 public class UserSQLDAO implements UserDAO {
@@ -59,27 +59,33 @@ public class UserSQLDAO implements UserDAO {
     @Override
     public void createUser(UserData user) throws DataAccessException {
         final String query = "INSERT INTO users (name, password, email) VALUES (?, ?, ?)";
+        String encryptPass = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(query)) {
             statement.setString(1, user.username());
-            statement.setString(2, user.password());
+            statement.setString(2, encryptPass);
             statement.setString(3, user.email());
             statement.executeUpdate();
         }
         catch (SQLException exception) {
+            System.out.print(exception);
             throw new DataAccessException("Error creating user");
         }
     }
 
     @Override
     public boolean authenticateUser(String username, String password) throws DataAccessException {
-        final String query = "SELECT * FROM users WHERE name = ? AND password = ?";
+        final String query = "SELECT password FROM users WHERE name = ?";
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(query)) {
             statement.setString(1, username);
-            statement.setString(2, password);
+
             try (var result = statement.executeQuery()) {
-                return result.next();
+                if (result.next()) {
+                    String storedHash = result.getString("password");
+                    return BCrypt.checkpw(password, storedHash);
+                }
+                return false;
             }
         } catch (SQLException exception) {
             throw new DataAccessException("Error authenticating user");
