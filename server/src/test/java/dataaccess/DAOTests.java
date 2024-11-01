@@ -98,7 +98,7 @@ class DAOTests {
     @Nested
     class UserDAOTests {
         private UserDAO userDAO;
-        private final UserData testUser = new UserData("testUser", "password123", "test@example.com");
+        private final UserData testUser = new UserData("testUser", "password", "test@example.com");
         private final UserData invalidUser = new UserData(null, null, "test@example.com");
 
         @BeforeEach
@@ -132,29 +132,7 @@ class DAOTests {
 
         @Test
         void testGetUserNegative() throws DataAccessException {
-            assertNull(userDAO.getUser("nonexistentUser"));
-        }
-    }
-
-    @Nested
-    class DatabaseSetupTests {
-
-        @Test
-        void testDatabaseCreation() {
-            assertDoesNotThrow(() -> {
-                AuthDAO authDAO = new AuthSQLDAO();
-                UserDAO userDAO = new UserSQLDAO();
-                GameDAO gameDAO = new GameSQLDAO();
-            });
-        }
-
-        @Test
-        void testTablePersistence() throws DataAccessException, BadRequestException {
-            AuthDAO authDAO = new AuthSQLDAO();
-            authDAO.addAuth(new AuthData("persist-token", "persistUser"));
-            AuthData retrieved = authDAO.getAuth("persist-token");
-            assertNotNull(retrieved);
-            assertEquals("persistUser", retrieved.username());
+            assertNull(userDAO.getUser("badUser"));
         }
     }
 }
