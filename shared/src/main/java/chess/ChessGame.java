@@ -134,18 +134,22 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition currentPosition = new ChessPosition(i, j);
                 ChessPiece currentPiece = board.getPiece(currentPosition);
-                if (currentPiece != null && currentPiece.getTeamColor() == enemyColor) {
-                    Collection<ChessMove> moves = currentPiece.pieceMoves(board, currentPosition);
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPosition)) {
-                            return true;
-                        }
-                    }
+                if (attackingKing(currentPiece, enemyColor,board, currentPosition, kingPosition)){
+                    return true;
                 }
             }
+        }return false;
+    }
+
+    private boolean attackingKing(ChessPiece piece, TeamColor enemyColor, ChessBoard board, ChessPosition position, ChessPosition kingPosition) {
+        if (piece != null && piece.getTeamColor() == enemyColor) {
+            Collection<ChessMove> moves = piece.pieceMoves(board, position);
+            return moves.stream().anyMatch(move -> move.getEndPosition().equals(kingPosition));
         }
         return false;
     }
+
+
     private ChessPosition findKing(TeamColor teamColor) {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {

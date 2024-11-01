@@ -18,7 +18,9 @@ public class DirectionalMoves {
         for (int i = pieceRow + rowshift, j = pieceCol + colchift;
              isValidPosition(i, j);
              i += rowshift, j += colchift) {
-            if (k == max) break;
+            if (k == max) {
+                break;
+            }
 
             ChessPosition newPosition = new ChessPosition(i, j);
             ChessPiece pieceAtNewPosition = board.getPiece(newPosition);
