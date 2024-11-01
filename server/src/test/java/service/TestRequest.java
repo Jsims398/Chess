@@ -1,10 +1,11 @@
-package server;
+package service;
 
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.*;
-import service.*;
+import server.GameHandler;
+import server.UserHandler;
 import spark.*;
 import java.util.HashSet;
 import java.util.HashMap;
