@@ -70,7 +70,7 @@ public class GameSQLDAO implements GameDAO {
         return result;
     }
     @Override
-    public void createGame(GameData game){
+    public void createGame(GameData game) throws DataAccessException {
         String query = "INSERT INTO games (id, whiteUsername, blackUsername, gameName, json) VALUES (?, ?, ?, ?, ?)";
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(query)){
@@ -82,7 +82,7 @@ public class GameSQLDAO implements GameDAO {
             statement.executeUpdate();
         }
         catch (SQLException| DataAccessException exception){
-            System.out.println("couldnt create game");
+            throw new DataAccessException("failed to create game");
         }
     }
     @Override
@@ -97,12 +97,14 @@ public class GameSQLDAO implements GameDAO {
                 if (result.next()){
                     return readgame(result);
                 }
+                else{
+                    throw new DataAccessException("Game not found, id: " + gameID);
+                }
             }
         }
         catch (SQLException exception){
             throw new DataAccessException("Error retrieving game: " + exception.getMessage());
         }
-        throw new DataAccessException("Game not found, id: " + gameID);
     }
 
     @Override

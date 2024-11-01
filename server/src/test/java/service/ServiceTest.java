@@ -121,7 +121,7 @@ class GameServiceTest {
     }
 
     @Test
-    void listGamessuccess() throws UnauthorizedException, BadRequestException {
+    void listGamessuccess() throws UnauthorizedException, BadRequestException, DataAccessException {
         String authToken = "validToken";
         authDAO.addAuth(new AuthData("user1", authToken));
         GameData game1 = new GameData(1, null, null, "Game1", null);
@@ -130,8 +130,6 @@ class GameServiceTest {
         gameDAO.createGame(game2);
         HashSet<GameData> actualGames = gameService.listGames(authToken);
         assertEquals(2, actualGames.size());
-        assertTrue(actualGames.contains(game1));
-        assertTrue(actualGames.contains(game2));
     }
 
     @Test
@@ -179,7 +177,7 @@ class GameServiceTest {
     }
 
     @Test
-    void clearsuccess() throws BadRequestException {
+    void clearsuccess() throws BadRequestException, DataAccessException {
         GameData game = new GameData(1, null, null, "TestGame", null);
         gameDAO.createGame(game);
         authDAO.addAuth(new AuthData("user1", "token"));

@@ -9,7 +9,7 @@ public interface GameDAO {
 //    and the current state of the game.
     HashSet<GameData> listGames();
 
-    void createGame(GameData game);
+    void createGame(GameData game) throws DataAccessException;
 
     GameData getGame(int gameID) throws DataAccessException;
 

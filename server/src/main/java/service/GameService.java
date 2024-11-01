@@ -51,9 +51,12 @@ public class GameService {
             gameID = ThreadLocalRandom.current().nextInt(1, 100);
         }
         while (gameDAO.gameExists(gameID));
-
-        gameDAO.createGame(new GameData(gameID, null, null, name, null));
-
+        try {
+            gameDAO.createGame(new GameData(gameID, null, null, name, null));
+        }
+        catch (DataAccessException exception){
+            throw new BadRequestException("failed to create game");
+        }
         return gameID;
     }
 

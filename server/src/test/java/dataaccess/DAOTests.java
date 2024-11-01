@@ -1,6 +1,7 @@
 package dataaccess;
 
-import model.AuthData;
+import chess.ChessGame;
+import model.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,41 +54,46 @@ class DAOTests {
         }
 
 
-//    @Nested
-//    class GameDAOTests {
-//        private GameDAO gameDAO;
-//        private final GameData testGame = new GameData(1, "whiteUser", "blackUser", "TestGame", new ChessGame());
-//        private final GameData invalidGame = new GameData(-1, null, null, null, null);
-//
-//        @BeforeEach
-//        void setUp() {
-//            gameDAO = new GameSQLDAO();
-//            gameDAO.clear();
-//        }
-//
-//        @Test
-//        void testAddGameData_Positive() throws DataAccessException {
-//            gameDAO.addGame(testGame);
-//            assertTrue(gameDAO.gameExists(testGame.getGameID()));
-//        }
-//
-//        @Test
-//        void testAddGameData_Negative() {
-//            assertThrows(DataAccessException.class, () -> gameDAO.addGame(invalidGame));
-//        }
-//
-//        @Test
-//        void testGetGameData_Positive() throws DataAccessException {
-//            gameDAO.addGame(testGame);
-//            GameData retrieved = gameDAO.getGame(testGame.getGameID());
-//            assertEquals(testGame.getName(), retrieved.getName());
-//        }
-//
-//        @Test
-//        void testGetGameData_Negative() {
-//            assertNull(gameDAO.getGame(9999));
-//        }
-//    }
+    @Nested
+    class GameDAOTests {
+        private GameDAO gameDAO;
+        ChessGame game = new ChessGame();
+        private final GameData testGame = new GameData(1, "whiteUser", "blackUser", "TestGame", game);
+        private final GameData invalidGame = new GameData(-1, null, null, null, null);
+
+        @BeforeEach
+        void setUp() {
+            try {
+                gameDAO = new GameSQLDAO();
+                gameDAO.clear();
+            }
+            catch (DataAccessException e){
+                System.out.println("failed to start SQL Games");
+            }
+        }
+
+        @Test
+        void testAddGameDataPositive() throws DataAccessException {
+            gameDAO.createGame(testGame);
+            assertTrue(gameDAO.gameExists(testGame.gameID()));
+        }
+
+        @Test
+        void testAddGameDataNegative() {
+            assertThrows(DataAccessException.class, () -> gameDAO.createGame(invalidGame));
+        }
+
+        @Test
+        void testGetGameDataPositive() throws DataAccessException {
+            gameDAO.createGame(testGame);
+            GameData retrieved = gameDAO.getGame(testGame.gameID());
+            assertEquals(testGame.gameName(), retrieved.gameName());
+        }
+
+        @Test
+        void testGetGameDataNegative(){
+            assertThrows(DataAccessException.class, () -> gameDAO.getGame(0));        }
+    }
 //
 //    @Nested
 //    class UserDAOTests {
