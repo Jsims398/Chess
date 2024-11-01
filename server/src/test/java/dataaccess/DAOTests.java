@@ -94,62 +94,67 @@ class DAOTests {
         void testGetGameDataNegative(){
             assertThrows(DataAccessException.class, () -> gameDAO.getGame(0));        }
     }
-//
-//    @Nested
-//    class UserDAOTests {
-//        private UserDAO userDAO;
-//        private final UserData testUser = new UserData("testUser", "password123", "test@example.com");
-//        private final UserData invalidUser = new UserData(null, null, "test@example.com");
-//
-//        @BeforeEach
-//        void setUp() {
-//            userDAO = new UserSQLDAO();
-//            userDAO.clear();
-//        }
-//
-//        @Test
-//        void testAddUser_Positive() throws DataAccessException {
-//            userDAO.addUser(testUser);
-//            assertTrue(userDAO.userExists(testUser.getUsername()));
-//        }
-//
-//        @Test
-//        void testAddUser_Negative() {
-//            assertThrows(DataAccessException.class, () -> userDAO.addUser(invalidUser));
-//        }
-//
-//        @Test
-//        void testGetUser_Positive() throws DataAccessException {
-//            userDAO.addUser(testUser);
-//            UserData retrieved = userDAO.getUser(testUser.getUsername());
-//            assertEquals(testUser.getEmail(), retrieved.getEmail());
-//        }
-//
-//        @Test
-//        void testGetUser_Negative() {
-//            assertNull(userDAO.getUser("nonexistentUser"));
-//        }
-//    }
-//
-//    @Nested
-//    class DatabaseSetupTests {
-//
-//        @Test
-//        void testDatabaseCreation() {
-//            assertDoesNotThrow(() -> {
-//                AuthDAO authDAO = new AuthSQLDAO();
-//                UserDAO userDAO = new UserSQLDAO();
-//                GameDAO gameDAO = new GameSQLDAO();
-//            });
-//        }
-//
-//        @Test
-//        void testTablePersistence() throws DataAccessException {
-//            AuthDAO authDAO = new AuthSQLDAO();
-//            authDAO.addAuthData(new AuthData("persist-token", "persistUser"));
-//            AuthData retrieved = authDAO.getAuthData("persist-token");
-//            assertNotNull(retrieved);
-//            assertEquals("persistUser", retrieved.getUsername());
-//        }
-//    }
+
+    @Nested
+    class UserDAOTests {
+        private UserDAO userDAO;
+        private final UserData testUser = new UserData("testUser", "password123", "test@example.com");
+        private final UserData invalidUser = new UserData(null, null, "test@example.com");
+
+        @BeforeEach
+        void setUp() {
+            try {
+                userDAO = new UserSQLDAO();
+                userDAO.clear();
+            }
+            catch (DataAccessException exception){
+                System.out.println("failed to start SQL for users");
+            }
+        }
+
+        @Test
+        void testAddUserPositive() throws DataAccessException {
+            userDAO.createUser(testUser);
+            assertNotNull(userDAO.getUser(testUser.username()));
+        }
+
+        @Test
+        void testAddUserNegative() {
+            assertThrows(DataAccessException.class, () -> userDAO.createUser(invalidUser));
+        }
+
+        @Test
+        void testGetUserPositive() throws DataAccessException {
+            userDAO.createUser(testUser);
+            UserData retrieved = userDAO.getUser(testUser.username());
+            assertEquals(testUser.email(), retrieved.email());
+        }
+
+        @Test
+        void testGetUserNegative() throws DataAccessException {
+            assertNull(userDAO.getUser("nonexistentUser"));
+        }
+    }
+
+    @Nested
+    class DatabaseSetupTests {
+
+        @Test
+        void testDatabaseCreation() {
+            assertDoesNotThrow(() -> {
+                AuthDAO authDAO = new AuthSQLDAO();
+                UserDAO userDAO = new UserSQLDAO();
+                GameDAO gameDAO = new GameSQLDAO();
+            });
+        }
+
+        @Test
+        void testTablePersistence() throws DataAccessException, BadRequestException {
+            AuthDAO authDAO = new AuthSQLDAO();
+            authDAO.addAuth(new AuthData("persist-token", "persistUser"));
+            AuthData retrieved = authDAO.getAuth("persist-token");
+            assertNotNull(retrieved);
+            assertEquals("persistUser", retrieved.username());
+        }
+    }
 }
