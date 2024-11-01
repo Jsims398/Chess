@@ -38,17 +38,17 @@ public class GameSQLDAO implements GameDAO {
             }
         }
         catch (SQLException exception) {
-            throw new DataAccessException("Unable to configure Auth database");
+            throw new DataAccessException("Unable to configure Game database");
         }
     }
 
     private GameData readgame(ResultSet result) throws SQLException{
-        var ID = result.getInt("id");
+        var id = result.getInt("id");
         var whiteUsername = result.getString("whiteUsername");
         var blackUsername = result.getString("blackUsername");
         var gameName = result.getString("gameName");
         var game = new Gson().fromJson(result.getString("json"), ChessGame.class);
-        return new GameData(ID, whiteUsername, blackUsername,gameName,game);
+        return new GameData(id, whiteUsername, blackUsername,gameName,game);
     }
 
     @Override
