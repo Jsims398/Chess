@@ -1,10 +1,9 @@
-
 package ui;
 
 import facade.ServerFacade;
 
-public class PostLoginUI extends UserInterface {
-    public PostLoginUI(ServerFacade facade)  {
+public class GamePlayUI extends UserInterface{
+    public GamePlayUI(ServerFacade facade)  {
         super(facade);
     }
 
