@@ -203,7 +203,6 @@ public class ChessClient {
 //        }
 //        throw new ResponseException("Usage: observegame <number>");
 //    }
-
     private void assertSignedIn() throws ResponseException {
         if (state == State.LOGGEDOUT) {
             throw new ResponseException(400, "You must sign in");
