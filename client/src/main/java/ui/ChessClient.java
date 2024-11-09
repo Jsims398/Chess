@@ -54,7 +54,7 @@ public class ChessClient {
             case "login" -> login(params);
             case "register" -> register(params);
             case "help" -> help();
-            case "quit" -> "quit";
+            case "quit" -> "\n";
             default -> "Unknown command. Type 'help' for options.";
         };
     }
@@ -90,20 +90,20 @@ public class ChessClient {
     private String register (String[]params) throws ResponseException {
         if (params.length == 3) {
             server.register(new UserData(params[0], params[1], params[2]));
-            return "Registration successful. You are now logged in as " + params[0];
+            return "Registration successful.";
         }
         throw new ResponseException("Usage: register <username> <password> <email>");
     }
 
     private String login(String[] params) throws ResponseException{
         if (params.length != 2) {
-            throw new ResponseException(400, "bad request");
+            throw new ResponseException(400, "No username or pass was given");
         }
         try {
             auth = server.login(new UserData(params[0], params[1], null));
             if (auth.authToken() != null){
                 state =State.LOGGEDIN;
-                return String.format("%s%s %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Logged in", auth.username());
+                return String.format("%s%s %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Logged in as", auth.username());
             }
             else {
                 throw new ResponseException("Login failed: Missing auth token.");
@@ -117,7 +117,7 @@ public class ChessClient {
 
     private String logout() throws ResponseException {
         assertSignedIn();
-        server.logout(user);
+        server.logout(auth);
         state = State.LOGGEDOUT;
         user = null;
         return "Logged out successfully.";

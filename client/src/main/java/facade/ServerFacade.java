@@ -5,6 +5,7 @@ import model.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 
 public class ServerFacade {
 
@@ -29,9 +30,21 @@ public class ServerFacade {
         return this.makeRequest("POST", path, user, AuthData.class);
     }
 
-    public void logout(UserData user) throws ResponseException {
+    public void logout(AuthData auth) throws ResponseException {
         var path = "/session";
-        this.makeRequest("DELETE", path, user, null);
+        try {
+            URL url = new URI(serverUrl + path).toURL();
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestMethod("DELETE");
+            http.setDoOutput(true);
+            http.setRequestProperty("authorization", auth.authToken());
+            writeBody(auth, http);
+            http.connect();
+            throwIfNotSuccessful(http);
+            readBody(http, AuthData.class);
+        } catch (Exception exception) {
+            throw new ResponseException(500, exception.getMessage());
+        }
     }
 
     public GameData[] listGames() throws ResponseException {

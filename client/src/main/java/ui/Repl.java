@@ -15,6 +15,7 @@ public class Repl{
         Scanner scanner = new Scanner(System.in);
         var result = "";
         var input = "";
+
         while (!result.equals("quit")) {
             printPrompt();
             input = scanner.nextLine();
@@ -27,12 +28,24 @@ public class Repl{
                 var message = exception.toString();
                 System.out.print(message);
             }
+
+            // Check for quit command
+            if (input.equalsIgnoreCase("quit")) {
+                quit();
+                return; // exit the loop and terminate the application
+            }
         }
-        System.out.println();
     }
 
     private void printPrompt() {
         System.out.printf("\n%s%s >>> %s", EscapeSequences.SET_TEXT_BOLD, EscapeSequences.SET_TEXT_COLOR_WHITE, EscapeSequences.RESET_TEXT_BOLD_FAINT);
     }
 
+    public void quit() {
+        // Print the quitting message with blue text
+        System.out.println(String.format("%s%s%s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Quitting application...", "\u001B[0m"));
+
+        // Terminate the application
+        System.exit(0);  // 0 indicates normal termination
+    }
 }
