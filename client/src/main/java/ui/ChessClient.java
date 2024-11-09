@@ -9,6 +9,7 @@ import static ui.State.*;
 
 public class ChessClient {
     UserData user;
+    AuthData auth;
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
 
@@ -94,39 +95,25 @@ public class ChessClient {
         throw new ResponseException("Usage: register <username> <password> <email>");
     }
 
-//    private String login (String[]params) throws ResponseException {
-//        if (params.length == 2) {
-//            UserData loginUser = new UserData(params[0], params[1], null);
-//            UserData loggedInUser = server.login(loginUser);
-//
-//            if (loggedInUser != null) {
-//                this.user = loggedInUser;
-//                state = State.LOGGEDIN;
-//                return "Successfully logged in as " + loggedInUser.username();
-//            }
-//            throw new ResponseException("Login failed.");
-//        }
-//        throw new ResponseException("Usage: login <username> <password>");
-//    }
-
-    private String login(String[] params) throws ResponseException {
-        if (params.length == 2) {
-            // Create a UserData object with the login details
-            UserData loginUser = new UserData(params[0], params[1], null);
-
-            // Call server.login to get an AuthData object, which contains the auth token
-            AuthData authData = server.login(loginUser); // Modify server.login to return AuthData
-
-            if (authData != null && authData.getToken() != null) {
-                this.authToken = authData.getToken(); // Store the auth token in a class variable
-                this.user = loginUser; // Optionally store the user information
-                state = State.LOGGEDIN;
-                return "Successfully logged in as " + loginUser.username();
-            }
-            throw new ResponseException("Login failed: Invalid credentials.");
+    private String login(String[] params) throws ResponseException{
+        if (params.length != 2) {
+            throw new ResponseException(400, "bad request");
         }
-        throw new ResponseException("Usage: login <username> <password>");
+        try {
+            auth = server.login(new UserData(params[0], params[1], null));
+            if (auth.authToken() != null){
+                state =State.LOGGEDIN;
+                return String.format("%s%s %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Logged in", auth.username());
+            }
+            else {
+                throw new ResponseException("Login failed: Missing auth token.");
+            }
+        }
+        catch (ResponseException e) {
+            throw new ResponseException(Integer.parseInt(e.getMessage().substring(23)), "");
+        }
     }
+
 
     private String logout() throws ResponseException {
         assertSignedIn();
