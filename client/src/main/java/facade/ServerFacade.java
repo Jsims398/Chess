@@ -1,6 +1,7 @@
 package facade;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import model.*;
 
 import java.io.*;
@@ -17,17 +18,17 @@ public class ServerFacade {
 
     public void clear() throws ResponseException {
         var path = "/clear";
-        this.makeRequest("POST", path, null, null);
+        this.makeRequest("POST", path, null, null, null);
     }
 
     public UserData register(UserData user) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, user, UserData.class, null);
     }
 
     public AuthData login(UserData user) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, user, AuthData.class);
+        return this.makeRequest("POST", path, user, AuthData.class, null);
     }
 
     public void logout(AuthData auth) throws ResponseException {
@@ -50,33 +51,44 @@ public class ServerFacade {
     public GameData[] listGames() throws ResponseException {
         var path = "/games";
         record ListGamesResponse(GameData[] games) {}
-        var response = this.makeRequest("GET", path, null, ListGamesResponse.class);
+        var response = this.makeRequest("GET", path, null, ListGamesResponse.class, null);
         return response.games();
     }
 
-    public GameData createGame(GameData game) throws ResponseException {
+    public GameData createGame(String game, AuthData auth) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, game, GameData.class);
+        JsonObject gameRequest = new JsonObject();
+        gameRequest.addProperty("gameName", game);
+        return this.makeRequest("POST", path, gameRequest, GameData.class, auth);
     }
+
 
     public GameData joinGame(int gameId, GameData user) throws ResponseException {
         var path = String.format("/game/%d/join", gameId);
-        return this.makeRequest("POST", path, user, GameData.class);
+        return this.makeRequest("POST", path, user, GameData.class, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, AuthData auth) throws ResponseException {
         try {
             URL url = new URI(serverUrl + path).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            if (auth != null) {
+                addAuthorizationHeader(http, auth);
+            }
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             throw new ResponseException(500, exception.getMessage());
+        }
+    }
+
+    private void addAuthorizationHeader(HttpURLConnection http, AuthData auth) {
+        if (auth != null && auth.authToken() != null) {
+            http.setRequestProperty("Authorization", auth.authToken());
         }
     }
 
@@ -89,6 +101,7 @@ public class ServerFacade {
             }
         }
     }
+
 
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         int status = http.getResponseCode();

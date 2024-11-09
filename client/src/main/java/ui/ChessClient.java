@@ -41,7 +41,7 @@ public class ChessClient {
         return switch (command) {
             case "help" -> help();
             case "logout" -> logout();
-//            case "creategame" -> createGame(params);
+            case "creategame" -> createGame(params);
 //            case "listgames" -> listGames();
 //            case "playgame" -> playGame(params);
 //            case "observegame" -> observeGame(params);
@@ -123,15 +123,15 @@ public class ChessClient {
         return "Logged out successfully.";
     }
 
-//    private String createGame(String[] params) throws ResponseException {
-//        if (params.length == 1) {
-//            String gameName = params[0];
-//            server.createGame(gameName);
-//            return "Game '" + gameName + "' created successfully.";
-//        }
-//        throw new ResponseException("Usage: creategame <gameName>");
-//    }
-//
+    private String createGame(String[] params) throws ResponseException {
+        if (params.length == 1) {
+            String gameName = params[0];
+            server.createGame(gameName,auth);
+            return "Game '" + gameName + "' created successfully.";
+        }
+        throw new ResponseException("Usage: creategame <gameName>");
+    }
+
 //    private String listGames() throws ResponseException {
 //        var games = server.listGames(); // Assuming list API returns a list of games with details
 //        if (games.isEmpty()) {
