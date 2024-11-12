@@ -9,7 +9,7 @@ import model.*;
 public class ChessClient {
     UserData user;
     AuthData auth;
-    private final Map<Integer, GameData > gameListMap = new HashMap<>();
+    private final Map<Integer, GameData> gameListMap = new HashMap<>();
 
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
@@ -17,6 +17,7 @@ public class ChessClient {
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
     }
+
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
@@ -27,14 +28,15 @@ public class ChessClient {
                 case LOGGEDIN -> handleLoggedInCommands(commnads, params);
                 case GAMEPLAY -> handleGameplayCommands(commnads, params);
             };
-        }
-        catch (ResponseException exception) {
+        } catch (ResponseException exception) {
             return exception.getMessage();
         }
     }
+
     private String handleGameplayCommands(String command, String[] params) {
         return "NA";
     }
+
     private String handleLoggedInCommands(String command, String[] params) throws ResponseException {
         return switch (command) {
             case "help" -> help();
@@ -60,32 +62,32 @@ public class ChessClient {
     String help() {
         return switch (state) {
             case LOGGEDOUT -> """
-                Available commands in Prelogin:
-                - help: Show this help message.
-                - login <username> <password>: Log in to your account.
-                - register <username> <password> <email>: Register a new account.
-                - quit: Exit the application.
-                """;
+                    Available commands in Prelogin:
+                    - help: Show this help message.
+                    - login <username> <password>: Log in to your account.
+                    - register <username> <password> <email>: Register a new account.
+                    - quit: Exit the application.
+                    """;
             case LOGGEDIN -> """
-                Available commands in Postlogin:
-                - help: Show this help message.
-                - logout: Log out and return to Prelogin UI.
-                - creategame <gameName>: Create a new game with the specified name.
-                - listgames: List all available games.
-                - playgame <number> <WHITE|BLACK>: Join a game by its number and specify a color (e.g., white or black).
-                - observegame <number>: Observe a game by its number.
-                """;
+                    Available commands in Postlogin:
+                    - help: Show this help message.
+                    - logout: Log out and return to Prelogin UI.
+                    - creategame <gameName>: Create a new game with the specified name.
+                    - listgames: List all available games.
+                    - playgame <number> <WHITE|BLACK>: Join a game by its number and specify a color (e.g., white or black).
+                    - observegame <number>: Observe a game by its number.
+                    """;
             case GAMEPLAY -> """
-                Available commands in Gameplay:
-                - help: Show this help message.
-                - move <from> <to>: Make a move (e.g., move e2 e4).
-                - resign: Resign from the current game.
-                - offerdraw: Offer a draw to your opponent.
-                """;
+                    Available commands in Gameplay:
+                    - help: Show this help message.
+                    - move <from> <to>: Make a move (e.g., move e2 e4).
+                    - resign: Resign from the current game.
+                    - offerdraw: Offer a draw to your opponent.
+                    """;
         };
     }
 
-    private String register (String[]params) throws ResponseException {
+    private String register(String[] params) throws ResponseException {
         if (params.length == 3) {
             server.register(new UserData(params[0], params[1], params[2]));
             return "Registration successful.";
@@ -93,23 +95,25 @@ public class ChessClient {
         throw new ResponseException("Usage: register <username> <password> <email>");
     }
 
-    private String login(String[] params) throws ResponseException{
+    private String login(String[] params) throws ResponseException {
         if (params.length != 2) {
             throw new ResponseException(400, "No username or pass was given");
         }
         try {
             auth = server.login(new UserData(params[0], params[1], null));
-            if (auth.authToken() != null){
-                state =State.LOGGEDIN;
-                return String.format("%s%s %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Logged in as", auth.username());
-            }
-            else {
+            if (auth != null) {
+                if (auth.authToken() != null) {
+                    state = State.LOGGEDIN;
+                    return String.format("%s%s %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Logged in as", auth.username());
+                }
+            } else {
                 throw new ResponseException("Login failed: Missing auth token.");
             }
         }
         catch (ResponseException e) {
-            throw new ResponseException(Integer.parseInt(e.getMessage().substring(23)), "");
+            throw new ResponseException("Login failed: User not found");
         }
+        return "";
     }
 
 

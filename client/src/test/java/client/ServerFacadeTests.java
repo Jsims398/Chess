@@ -59,10 +59,9 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void loginFailureWrongPassword() {
-        assertThrows(ResponseException.class, () -> {
-            facade.login(new UserData("test", "wrongpassword", null));
-        });
+    void loginFailureWrongPassword() throws ResponseException {
+        facade.login(new UserData("test", "wrongpassword", null));
+        assertThrows(ResponseException.class, () -> facade.listGames(new AuthData("this", "BadAuth")));
     }
 
     @Test

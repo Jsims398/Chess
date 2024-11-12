@@ -3,7 +3,6 @@ package facade;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import model.*;
-
 import java.io.*;
 import java.net.*;
 
@@ -27,7 +26,13 @@ public class ServerFacade {
 
     public AuthData login(UserData user) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, user, AuthData.class, null);
+        try{
+            return this.makeRequest("POST", path, user, AuthData.class, null);
+        }
+        catch (Exception e){
+//            System.out.print("Failed to login");
+            return null;
+        }
     }
 
     public void logout(AuthData auth) throws ResponseException {
