@@ -19,9 +19,16 @@ public class ServerFacade {
         makeRequest("DELETE", path, null, null, null);
     }
 
-    public void register(UserData user) throws ResponseException {
-        var path = "/user";
-        this.makeRequest("POST", path, user, UserData.class, null);
+    public boolean register(UserData user) throws ResponseException {
+        try {
+            var path = "/user";
+            this.makeRequest("POST", path, user, UserData.class, null);
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("User already created");
+            return false;
+        }
     }
 
     public AuthData login(UserData user) throws ResponseException {
@@ -67,13 +74,19 @@ public class ServerFacade {
     }
 
 
-    public void joinGame(int gameId, String playerColor, AuthData auth) throws ResponseException {
-        var path = "/game";
-        JsonObject gameRequest = new JsonObject();
-        gameRequest.addProperty("playerColor", playerColor);
-        gameRequest.addProperty("gameID", gameId);
-
-        this.makeRequest("PUT", path, gameRequest, GameData.class, auth);
+    public boolean joinGame(int gameId, String playerColor, AuthData auth) throws ResponseException {
+        try {
+            var path = "/game";
+            JsonObject gameRequest = new JsonObject();
+            gameRequest.addProperty("playerColor", playerColor);
+            gameRequest.addProperty("gameID", gameId);
+            this.makeRequest("PUT", path, gameRequest, GameData.class, auth);
+            return true;
+        }
+        catch (Exception e){
+            System.out.println("Can not join already filled position");
+            return false;
+        }
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, AuthData auth) throws ResponseException {

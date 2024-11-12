@@ -89,8 +89,15 @@ public class ChessClient {
 
     private String register(String[] params) throws ResponseException {
         if (params.length == 3) {
-            server.register(new UserData(params[0], params[1], params[2]));
-            return "Registration successful.";
+            boolean status = server.register(new UserData(params[0], params[1], params[2]));
+            if (status) {
+                auth = server.login(new UserData(params[0], params[1], null));
+                if (auth.authToken() != null) {
+                    state = State.LOGGEDIN;
+                    return String.format("%s%s %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Logged in as", auth.username());
+                }
+                return "Registration successful.";
+            }
         }
         throw new ResponseException("Usage: register <username> <password> <email>");
     }
@@ -172,19 +179,26 @@ public class ChessClient {
     private String playGame(String[] params) throws ResponseException {
         if (params.length == 2) {
             try {
-                GameData gamedata = gameListMap.get(Integer.parseInt(params[0]));
-                int gameId = gamedata.gameID();
-                String color = params[1].toUpperCase();
+                int index = Integer.parseInt((params[0]));
+                if(gameListMap.containsKey(index)) {
+                    GameData gamedata = gameListMap.get(index);
+                    int gameId = gamedata.gameID();
+                    String color = params[1].toUpperCase();
 
-                if (!color.equals("BLACK") && !color.equals("WHITE")){
-                    throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
-                }
+                    if (!color.equals("BLACK") && !color.equals("WHITE")) {
+                        throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
+                    }
 
-                server.joinGame(gameId, color, auth);
+                    boolean responce = server.joinGame(gameId, color, auth);
+                    if (responce) {
 //                state = State.GAMEPLAY; //add later
-                new PrintBoard(gamedata.game()).printBoard();
-                return "Joined game " + params[0] + " as " + color + ".";
-
+                        new PrintBoard(gamedata.game()).printBoard();
+                        return "Joined game " + params[0] + " as " + color + ".";
+                    }
+                }
+                else{
+                    throw new ResponseException("Invalid game number.");
+                }
             } catch (NumberFormatException e) {
                 throw new ResponseException("Invalid game number format.");
             }
