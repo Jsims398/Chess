@@ -6,7 +6,7 @@ import model.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
+import java.util.*;
 
 public class ServerFacade {
 
@@ -48,24 +48,30 @@ public class ServerFacade {
         }
     }
 
-    public GameData[] listGames() throws ResponseException {
-        var path = "/games";
-        record ListGamesResponse(GameData[] games) {}
-        var response = this.makeRequest("GET", path, null, ListGamesResponse.class, null);
+    public GameData[] listGames(AuthData auth) throws ResponseException {
+        var path = "/game";
+        record listPetResponse(GameData[] games) {}
+        var response = this.makeRequest("GET", path, null, listPetResponse.class, auth);
         return response.games();
     }
 
-    public GameData createGame(String game, AuthData auth) throws ResponseException {
+
+
+    public void createGame(String game, AuthData auth) throws ResponseException {
         var path = "/game";
         JsonObject gameRequest = new JsonObject();
         gameRequest.addProperty("gameName", game);
-        return this.makeRequest("POST", path, gameRequest, GameData.class, auth);
+        this.makeRequest("POST", path, gameRequest, GameData.class, auth);
     }
 
 
-    public GameData joinGame(int gameId, GameData user) throws ResponseException {
-        var path = String.format("/game/%d/join", gameId);
-        return this.makeRequest("POST", path, user, GameData.class, null);
+    public GameData joinGame(int gameId, String playerColor, AuthData auth) throws ResponseException {
+        var path = "/game";
+        JsonObject gameRequest = new JsonObject();
+        gameRequest.addProperty("playerColor", playerColor);
+        gameRequest.addProperty("gameID", gameId);
+
+        return this.makeRequest("PUT", path, gameRequest, GameData.class, auth);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, AuthData auth) throws ResponseException {

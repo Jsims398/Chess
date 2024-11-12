@@ -1,15 +1,17 @@
 package ui;
 
-import java.util.Arrays;
+import java.util.*;
+
 import com.google.gson.Gson;
 import facade.ResponseException;
 import facade.ServerFacade;
 import model.*;
-import static ui.State.*;
 
 public class ChessClient {
     UserData user;
     AuthData auth;
+    private Map<Integer, GameData > gameListMap = new HashMap<>();
+
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
 
@@ -42,8 +44,8 @@ public class ChessClient {
             case "help" -> help();
             case "logout" -> logout();
             case "creategame" -> createGame(params);
-//            case "listgames" -> listGames();
-//            case "playgame" -> playGame(params);
+            case "listgames" -> listGames();
+            case "playgame" -> playGame(params);
 //            case "observegame" -> observeGame(params);
             default -> "Unknown command. Type 'help' for options.";
         };
@@ -74,7 +76,7 @@ public class ChessClient {
                 - logout: Log out and return to Prelogin UI.
                 - creategame <gameName>: Create a new game with the specified name.
                 - listgames: List all available games.
-                - playgame <number> <color>: Join a game by its number and specify a color (e.g., white or black).
+                - playgame <number> <WHITE|BLACK>: Join a game by its number and specify a color (e.g., white or black).
                 - observegame <number>: Observe a game by its number.
                 """;
             case GAMEPLAY -> """
@@ -132,48 +134,65 @@ public class ChessClient {
         throw new ResponseException("Usage: creategame <gameName>");
     }
 
-//    private String listGames() throws ResponseException {
-//        var games = server.listGames(); // Assuming list API returns a list of games with details
-//        if (games.isEmpty()) {
-//            return "No games available.";
-//        }
-//        gameListMap.clear();
-//        StringBuilder sb = new StringBuilder("Available games:\n");
-//        int count = 1;
-//        for (var game : games) {
-//            sb.append(count)
-//                    .append(". ")
-//                    .append(game.getName())
-//                    .append(" - Players: ")
-//                    .append(game.getPlayers())
-//                    .append("\n");
-//            gameListMap.put(count, game.getId()); // Map number to game ID for easy access
-//            count++;
-//        }
-//        return sb.toString();
-//    }
-//
-//    private String playGame(String[] params) throws ResponseException {
-//        if (params.length == 2) {
-//            try {
-//                int gameNumber = Integer.parseInt(params[0]);
-//                String color = params[1].toLowerCase();
-//
-//                if (!gameListMap.containsKey(gameNumber)) {
-//                    throw new ResponseException("Invalid game number. Please list games first.");
-//                }
-//
-//                String gameId = gameListMap.get(gameNumber);
-//                server.joinGame(gameId, color); // Server API to join game with specified color
-//                state = GAMEPLAY; // Transition to gameplay state if applicable
+    private String listGames() throws ResponseException {
+        var string = new StringBuilder();
+        try {
+            var result = server.listGames(auth);
+            if (result.length == 0) {
+                return String.format("%s%s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "No games to list");
+            } else {
+                int count = 1;
+                for (var game : result) {
+                    string.append(EscapeSequences.SET_TEXT_COLOR_BLUE)
+                            .append(count)
+                            .append(". ")
+                            .append(EscapeSequences.SET_TEXT_BOLD)
+                            .append(game.gameName())
+                            .append(EscapeSequences.RESET_TEXT_ITALIC)
+                            .append("\n");
+
+                    String whitePlayer = game.whiteUsername() != null ? game.whiteUsername() : "None";
+                    String blackPlayer = game.blackUsername() != null ? game.blackUsername() : "None";
+                    string.append("  White: ").append(whitePlayer)
+                            .append("\n")
+                            .append("  Black: ").append(blackPlayer)
+                            .append("\n")
+                            .append("--------------------------------\n");
+                    gameListMap.put(count, game);
+                    count++;
+                }
+            }
+            return string.toString();
+        }
+        catch (ResponseException e) {
+            throw new ResponseException(Integer.parseInt(e.getMessage().substring(23)), "Error processing games list");
+        }
+    }
+
+    private String playGame(String[] params) throws ResponseException {
+        if (params.length == 2) {
+            try {
+                GameData gamedata = gameListMap.get(Integer.parseInt(params[0]));
+                int gameId = gamedata.gameID();
+                String color = params[1].toUpperCase();
+
+                if (!color.equals("BLACK") && !color.equals("WHITE")){
+                    throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
+                }
+
+                GameData game = server.joinGame(gameId, color, auth);
+                System.out.print(game);
+                //                state = State.GAMEPLAY; //add later
+//                printGameBoard(game, color.equals("WHITE"));
 //                return "Joined game " + gameId + " as " + color + ".";
-//            } catch (NumberFormatException e) {
-//                throw new ResponseException("Invalid game number format.");
-//            }
-//        }
-//        throw new ResponseException("Usage: playgame <number> <color>");
-//    }
-//
+
+            } catch (NumberFormatException e) {
+                throw new ResponseException("Invalid game number format.");
+            }
+        }
+        throw new ResponseException("Usage: playgame <number> <color>");
+    }
+
 //    private String observeGame(String[] params) throws ResponseException {
 //        if (params.length == 1) {
 //            try {
@@ -194,5 +213,57 @@ public class ChessClient {
         if (state == State.LOGGEDOUT) {
             throw new ResponseException(400, "You must sign in");
         }
+    }
+    private void printGameBoard(GameData game, boolean isWhiteAtBottom) {
+        StringBuilder board = new StringBuilder();
+        String lightSquare = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+        String darkSquare = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+        String resetColor = EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR;
+
+        String[] blackPieces = {
+                EscapeSequences.BLACK_ROOK, EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_BISHOP,
+                EscapeSequences.BLACK_QUEEN, EscapeSequences.BLACK_KING, EscapeSequences.BLACK_BISHOP,
+                EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_ROOK
+        };
+
+        String[] whitePieces = {
+                EscapeSequences.WHITE_ROOK, EscapeSequences.WHITE_KNIGHT, EscapeSequences.WHITE_BISHOP,
+                EscapeSequences.WHITE_QUEEN, EscapeSequences.WHITE_KING, EscapeSequences.WHITE_BISHOP,
+                EscapeSequences.WHITE_KNIGHT, EscapeSequences.WHITE_ROOK
+        };
+
+        board.append(EscapeSequences.ERASE_SCREEN);
+
+        // Loop twice: once for the normal orientation and once for reversed orientation
+        for (int orientation = 0; orientation < 2; orientation++) {
+            boolean reversed = orientation == 1;
+
+            for (int row = 0; row < 8; row++) {
+                int displayRow = reversed ? 7 - row : row; // Reverse row if needed
+                for (int col = 0; col < 8; col++) {
+                    String color = (displayRow + col) % 2 == 0 ? lightSquare : darkSquare;
+                    String piece = " ";
+
+                    // Set pieces based on row index and whether white is at bottom
+                    if (displayRow == 0) {
+                        piece = blackPieces[col];
+                    } else if (displayRow == 1) {
+                        piece = EscapeSequences.BLACK_PAWN;
+                    } else if (displayRow == 6) {
+                        piece = EscapeSequences.WHITE_PAWN;
+                    } else if (displayRow == 7) {
+                        piece = whitePieces[col];
+                    }
+
+                    board.append(color).append(" ").append(piece).append(" ").append(resetColor);
+                }
+                board.append("\n");
+            }
+
+            // Print a separator for readability
+            board.append("\n").append("=".repeat(24)).append("\n\n");
+        }
+
+        System.out.print(board.toString());
     }
 }

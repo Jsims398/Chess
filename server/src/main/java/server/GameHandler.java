@@ -7,6 +7,7 @@ import model.GameData;
 import com.google.gson.*;
 
 import java.util.HashSet;
+import java.util.Map;
 
 public class GameHandler {
 
@@ -19,7 +20,7 @@ public class GameHandler {
         String authToken = req.headers("authorization");
         HashSet<GameData> games = gameService.listGames(authToken);
         resp.status(200);
-        return "{games: %s}".formatted(new Gson().toJson(games));
+        return new Gson().toJson(Map.of("games", games));
     }
     //creategames
     public Object createGame(Request request, Response response) throws BadRequestException, UnauthorizedException {
