@@ -35,7 +35,7 @@ public class PrintBoard {
             out.printf(" %d ", orientation == Color.WHITE ? 8 - row : row + 1);
             out.print(EscapeSequences.RESET_BG_COLOR);
             moveRow(orientation);
-            if (row < BOARD_SIZE - 1) out.print("\n");
+            if (row < BOARD_SIZE - 1) {out.print("\n");}
         }
         out.print(EscapeSequences.RESET_BG_COLOR);
     }

@@ -38,10 +38,10 @@ public class ServerFacadeTests {
 
     @Test
     void registerSuccess() throws Exception {
-        facade.register(new UserData("test", "test", "test@email.com"));
-        var authData = facade.login(new UserData("test", "test", null));
-        assertNotNull(authData);
-        assertNotNull(authData.authToken());
+        facade.register(new UserData("user", "user", "user@email.com"));
+        var auth = facade.login(new UserData("user", "user", null));
+        assertNotNull(auth);
+        assertNotNull(auth.authToken());
     }
     @Test
     void registerFailureMissingEmail() {

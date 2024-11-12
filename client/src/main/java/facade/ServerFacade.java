@@ -49,8 +49,8 @@ public class ServerFacade {
 
     public GameData[] listGames(AuthData auth) throws ResponseException {
         var path = "/game";
-        record listPetResponse(GameData[] games) {}
-        var response = this.makeRequest("GET", path, null, listPetResponse.class, auth);
+        record Games(GameData[] games) {}
+        var response = this.makeRequest("GET", path, null, Games.class, auth);
         return response.games();
     }
 
@@ -70,10 +70,6 @@ public class ServerFacade {
 
         this.makeRequest("PUT", path, gameRequest, GameData.class, auth);
     }
-
-//    public void observeGame(String gameId) {
-//
-//    }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, AuthData auth) throws ResponseException {
         try {

@@ -32,20 +32,19 @@ public class Repl{
             // Check for quit command
             if (input.equalsIgnoreCase("quit")) {
                 quit();
-                return; // exit the loop and terminate the application
+                return;
             }
         }
     }
 
     private void printPrompt() {
-        System.out.printf("\n%s%s >>> %s", EscapeSequences.SET_TEXT_BOLD, EscapeSequences.SET_TEXT_COLOR_WHITE, EscapeSequences.RESET_TEXT_BOLD_FAINT);
+        System.out.printf("\n%s%s >>> %s", EscapeSequences.SET_TEXT_BOLD,
+                EscapeSequences.SET_TEXT_COLOR_WHITE, EscapeSequences.RESET_TEXT_BOLD_FAINT);
     }
 
     public void quit() {
-        // Print the quitting message with blue text
-        System.out.println(String.format("%s%s%s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Quitting application...", "\u001B[0m"));
-
-        // Terminate the application
-        System.exit(0);  // 0 indicates normal termination
+        System.out.println(String.format("%s%s%s%n", EscapeSequences.SET_TEXT_COLOR_BLUE,
+                "Quitting application...", "\u001B[0m"));
+        System.exit(0);
     }
 }
