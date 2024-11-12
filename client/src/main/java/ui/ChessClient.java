@@ -2,7 +2,6 @@ package ui;
 
 import java.util.*;
 
-import com.google.gson.Gson;
 import facade.ResponseException;
 import facade.ServerFacade;
 import model.*;
@@ -10,7 +9,7 @@ import model.*;
 public class ChessClient {
     UserData user;
     AuthData auth;
-    private Map<Integer, GameData > gameListMap = new HashMap<>();
+    private final Map<Integer, GameData > gameListMap = new HashMap<>();
 
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
@@ -46,7 +45,7 @@ public class ChessClient {
             case "creategame" -> createGame(params);
             case "listgames" -> listGames();
             case "playgame" -> playGame(params);
-//            case "observegame" -> observeGame(params);
+            case "observegame" -> observeGame(params);
             default -> "Unknown command. Type 'help' for options.";
         };
     }
@@ -180,11 +179,10 @@ public class ChessClient {
                     throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
                 }
 
-                GameData game = server.joinGame(gameId, color, auth);
-                System.out.print(game);
-                //                state = State.GAMEPLAY; //add later
-//                printGameBoard(game, color.equals("WHITE"));
-//                return "Joined game " + gameId + " as " + color + ".";
+                server.joinGame(gameId, color, auth);
+//                state = State.GAMEPLAY; //add later
+                new PrintBoard(gamedata.game()).printBoard();
+                return "Joined game " + params[0] + " as " + color + ".";
 
             } catch (NumberFormatException e) {
                 throw new ResponseException("Invalid game number format.");
@@ -193,77 +191,26 @@ public class ChessClient {
         throw new ResponseException("Usage: playgame <number> <color>");
     }
 
-//    private String observeGame(String[] params) throws ResponseException {
-//        if (params.length == 1) {
-//            try {
-//                int gameNumber = Integer.parseInt(params[0]);
-//                if (!gameListMap.containsKey(gameNumber)) {
-//                    throw new ResponseException("Invalid game number. Please list games first.");
-//                }
-//                String gameId = gameListMap.get(gameNumber);
-//                server.observeGame(gameId); // Server API to observe game
-//                return "Observing game " + gameId + ".";
-//            } catch (NumberFormatException e) {
-//                throw new ResponseException("Invalid game number format.");
-//            }
-//        }
-//        throw new ResponseException("Usage: observegame <number>");
-//    }
+    private String observeGame(String[] params) throws ResponseException {
+        if (params.length == 1) {
+            try {
+                int gameNumber = Integer.parseInt(params[0]);
+                if (!gameListMap.containsKey(gameNumber)) {
+                    throw new ResponseException("Invalid game number. Please list games first.");
+                }
+                GameData gamedata = gameListMap.get(Integer.parseInt(params[0]));
+                new PrintBoard(gamedata.game()).printBoard();
+                return "Observing game " + params[0] + ".";
+            } catch (NumberFormatException e) {
+                throw new ResponseException("Invalid game number format.");
+            }
+        }
+        throw new ResponseException("Usage: observegame <number>");
+    }
+
     private void assertSignedIn() throws ResponseException {
         if (state == State.LOGGEDOUT) {
             throw new ResponseException(400, "You must sign in");
         }
-    }
-    private void printGameBoard(GameData game, boolean isWhiteAtBottom) {
-        StringBuilder board = new StringBuilder();
-        String lightSquare = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
-        String darkSquare = EscapeSequences.SET_BG_COLOR_DARK_GREY;
-        String resetColor = EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_COLOR;
-
-        String[] blackPieces = {
-                EscapeSequences.BLACK_ROOK, EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_BISHOP,
-                EscapeSequences.BLACK_QUEEN, EscapeSequences.BLACK_KING, EscapeSequences.BLACK_BISHOP,
-                EscapeSequences.BLACK_KNIGHT, EscapeSequences.BLACK_ROOK
-        };
-
-        String[] whitePieces = {
-                EscapeSequences.WHITE_ROOK, EscapeSequences.WHITE_KNIGHT, EscapeSequences.WHITE_BISHOP,
-                EscapeSequences.WHITE_QUEEN, EscapeSequences.WHITE_KING, EscapeSequences.WHITE_BISHOP,
-                EscapeSequences.WHITE_KNIGHT, EscapeSequences.WHITE_ROOK
-        };
-
-        board.append(EscapeSequences.ERASE_SCREEN);
-
-        // Loop twice: once for the normal orientation and once for reversed orientation
-        for (int orientation = 0; orientation < 2; orientation++) {
-            boolean reversed = orientation == 1;
-
-            for (int row = 0; row < 8; row++) {
-                int displayRow = reversed ? 7 - row : row; // Reverse row if needed
-                for (int col = 0; col < 8; col++) {
-                    String color = (displayRow + col) % 2 == 0 ? lightSquare : darkSquare;
-                    String piece = " ";
-
-                    // Set pieces based on row index and whether white is at bottom
-                    if (displayRow == 0) {
-                        piece = blackPieces[col];
-                    } else if (displayRow == 1) {
-                        piece = EscapeSequences.BLACK_PAWN;
-                    } else if (displayRow == 6) {
-                        piece = EscapeSequences.WHITE_PAWN;
-                    } else if (displayRow == 7) {
-                        piece = whitePieces[col];
-                    }
-
-                    board.append(color).append(" ").append(piece).append(" ").append(resetColor);
-                }
-                board.append("\n");
-            }
-
-            // Print a separator for readability
-            board.append("\n").append("=".repeat(24)).append("\n\n");
-        }
-
-        System.out.print(board.toString());
     }
 }

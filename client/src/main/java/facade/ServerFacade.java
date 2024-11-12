@@ -6,7 +6,6 @@ import model.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 public class ServerFacade {
 
@@ -16,14 +15,9 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    public void clear() throws ResponseException {
-        var path = "/clear";
-        this.makeRequest("POST", path, null, null, null);
-    }
-
-    public UserData register(UserData user) throws ResponseException {
+    public void register(UserData user) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, user, UserData.class, null);
+        this.makeRequest("POST", path, user, UserData.class, null);
     }
 
     public AuthData login(UserData user) throws ResponseException {
@@ -55,8 +49,6 @@ public class ServerFacade {
         return response.games();
     }
 
-
-
     public void createGame(String game, AuthData auth) throws ResponseException {
         var path = "/game";
         JsonObject gameRequest = new JsonObject();
@@ -65,14 +57,18 @@ public class ServerFacade {
     }
 
 
-    public GameData joinGame(int gameId, String playerColor, AuthData auth) throws ResponseException {
+    public void joinGame(int gameId, String playerColor, AuthData auth) throws ResponseException {
         var path = "/game";
         JsonObject gameRequest = new JsonObject();
         gameRequest.addProperty("playerColor", playerColor);
         gameRequest.addProperty("gameID", gameId);
 
-        return this.makeRequest("PUT", path, gameRequest, GameData.class, auth);
+        this.makeRequest("PUT", path, gameRequest, GameData.class, auth);
     }
+
+//    public void observeGame(String gameId) {
+//
+//    }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, AuthData auth) throws ResponseException {
         try {

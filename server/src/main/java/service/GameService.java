@@ -76,7 +76,7 @@ public class GameService {
         String whitePlayer = gameData.whiteUsername();
         String blackPlayer = gameData.blackUsername();
 
-        if (color == null || (!color.equals("WHITE") && !color.equals("BLACK"))) {
+        if (color == null || !color.equals("WHITE") && !color.equals("BLACK")) {
             throw new BadRequestException("Invalid or missing team color: " + color);
         }
         if (color.equals("WHITE")) {
