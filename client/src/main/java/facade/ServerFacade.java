@@ -15,6 +15,11 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public void clear() throws ResponseException{
+        String path = "/db";
+        makeRequest("DELETE", path, null, null, null);
+    }
+
     public void register(UserData user) throws ResponseException {
         var path = "/user";
         this.makeRequest("POST", path, user, UserData.class, null);
