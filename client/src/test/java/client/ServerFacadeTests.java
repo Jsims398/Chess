@@ -164,6 +164,5 @@ public class ServerFacadeTests {
         GameData game = Arrays.stream(games).filter(g -> "TestGame".equals(g.gameName())).findFirst().orElse(null);
         assertNotNull(game, "Game should be created.");
         assertThrows(ResponseException.class, () -> facade.joinGame(game.gameID(), "NOTCORRECT", authData));
-
     }
 }

@@ -17,7 +17,6 @@ public class ChessClient {
     public ChessClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
     }
-
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
@@ -33,11 +32,9 @@ public class ChessClient {
             return exception.getMessage();
         }
     }
-
     private String handleGameplayCommands(String command, String[] params) {
         return "NA";
     }
-
     private String handleLoggedInCommands(String command, String[] params) throws ResponseException {
         return switch (command) {
             case "help" -> help();
