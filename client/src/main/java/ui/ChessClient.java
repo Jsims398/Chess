@@ -2,6 +2,7 @@ package ui;
 
 import java.util.*;
 
+import chess.ChessMove;
 import facade.ResponseException;
 import facade.ServerFacade;
 import model.*;
@@ -42,10 +43,10 @@ public class ChessClient {
         return switch(command) {
             case "help" -> help();
             case "printboard" -> printboard();
-            case "leave" -> leave();
-            case "move" -> move(params);
-            case "resign" -> resign();
-            case "showmoves" -> showmoves(params);
+//            case "leave" -> leave();
+//            case "move" -> move(params);
+//            case "resign" -> resign();
+//            case "showmoves" -> showmoves(params);
             default -> "Unknown command. Type 'help' for options.";
         };
     }
@@ -215,6 +216,7 @@ public class ChessClient {
 
     private String playGame(String[] params) throws ResponseException {
         if (params.length == 2) {
+
             try {
                 int index = Integer.parseInt((params[0]));
                 if(gameListMap.containsKey(index)) {
@@ -225,9 +227,11 @@ public class ChessClient {
                     if (!color.equals("BLACK") && !color.equals("WHITE")) {
                         throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
                     }
-                    ws = new WebsocketFacade(serverUrl, nh);
-                    boolean response = ws.joinGame(gameId, color, auth);
+
+                    boolean response = server.joinGame(gameId, color, auth);
                     if (response) {
+                        ws = new WebsocketFacade(serverUrl, nh, gameId, color);
+                        ws.connect(String.valueOf(auth));
                         state = State.GAMEPLAY;
                         return "Joined game " + params[0] + " as " + color + ".";
                     }
@@ -242,29 +246,30 @@ public class ChessClient {
         throw new ResponseException("Usage: playgame <number> <color>");
     }
 
-    private String move(String[] params) throws ResponseException {
-        if (params.length == 2) {
-            String from = params[0];
-            String to = params[1];
-            boolean success = ws.makeMove(from, to, auth);
-            if (success) {
-                System.out.print("NOT FINISHED NEED TO UPDATE OPPONENT");
-                return String.format("Moved from %s to %s.", from, to);
-            }
-            throw new ResponseException("Failed to make the move.");
-        }
-        throw new ResponseException("Usage: move <from> <to>");
-    }
+//    private String move(String[] params) throws ResponseException {
+//        if (params.length == 2) {
+//            String from = params[0];
+//            String to = params[1];
+////            ChessMove move = new ChessMove(from, to , null);
+////            boolean success = ws.makeMove(move, auth);
+////            if (success) {
+////                System.out.print("NOT FINISHED NEED TO UPDATE OPPONENT");
+////                return String.format("Moved from %s to %s.", from, to);
+////            }
+//            throw new ResponseException("Failed to make the move.");
+//        }
+//        throw new ResponseException("Usage: move <from> <to>");
+//    }
 
-    private String resign() throws ResponseException {
-        boolean success = ws.resignGame(auth);
-        if (success) {
-            ws = null;
-            state = State.LOGGEDIN;
-            return "You have resigned from the game.";
-        }
-        throw new ResponseException("Failed to resign.");
-    }
+//    private String resign() throws ResponseException {
+//        boolean success = ws.resignGame(auth);
+//        if (success) {
+//            ws = null;
+//            state = State.LOGGEDIN;
+//            return "You have resigned from the game.";
+//        }
+//        throw new ResponseException("Failed to resign.");
+//    }
 
     private String printboard() throws ResponseException {
         if (state == State.GAMEPLAY) {
@@ -274,12 +279,12 @@ public class ChessClient {
         throw new ResponseException(400, "You must join a game");
     }
 
-    private String leave(){
-        return "COMPLETE";
-    }
-    private String showmoves(String[] params){
-        return "COMPLETE";
-    }
+//    private String leave(){
+//        return "COMPLETE";
+//    }
+//    private String showmoves(String[] params){
+//        return "COMPLETE";
+//    }
 
 
 }

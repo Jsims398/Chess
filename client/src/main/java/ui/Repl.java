@@ -1,12 +1,16 @@
 package ui;
 
+import model.GameData;
 import websocket.NotificationHandler;
-import websocket.messages.Notification;
+import websocket.messages.*;
+import websocket.messages.ErrorMessage;
 
 import java.util.Scanner;
 
 public class Repl implements NotificationHandler {
     private final ChessClient client;
+    public GameData game;
+
     public Repl(String serverUrl) {
         client = new ChessClient(serverUrl, this);
     }
@@ -52,8 +56,23 @@ public class Repl implements NotificationHandler {
     }
 
     @Override
-    public void notify(Notification notification) {
-        System.out.println(notification.message());
-        printPrompt();
+    public void notify(ServerMessage serverMessage) {
+        System.out.println(serverMessage.getMessage());
+
+    }
+
+    @Override
+    public void updateGame(GameData game) {
+        this.game = game;
+    }
+
+    public GameData getGame(){
+        return game;
+    }
+
+    @Override
+    public void notifyError(ErrorMessage errorMessage) {
+        System.out.println(errorMessage.getErrorMessage());
+
     }
 }

@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.GameDAO;
+import server.websocket.WebsocketHandler;
 import spark.*;
 import dataaccess.*;
 import service.GameService;
@@ -18,6 +19,7 @@ public class Server {
     //Handeler's
     UserHandler userHandler;
     GameHandler gameHandler;
+    private final WebsocketHandler webSocketHandler;
 
     public Server() {
 // get everything
@@ -34,13 +36,13 @@ public class Server {
 
         this.userHandler = new UserHandler(userService);
         this.gameHandler = new GameHandler(gameService);
-
+        webSocketHandler = new WebsocketHandler(userService, gameService);
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-
+        Spark.webSocket("/ws", webSocketHandler);
         Spark.delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
         Spark.post("/session", userHandler::login);

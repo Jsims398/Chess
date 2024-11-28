@@ -1,7 +1,11 @@
 package websocket;
 
-import websocket.messages.Notification;
+import model.GameData;
+import websocket.messages.ErrorMessage;
+import websocket.messages.ServerMessage;
 
 public interface NotificationHandler {
-    void notify(Notification notification);
+    void notify(ServerMessage serverMessage);
+    void updateGame(GameData game);
+    void notifyError(ErrorMessage errorMessage);
 }
