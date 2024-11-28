@@ -5,17 +5,22 @@ import java.util.*;
 import facade.ResponseException;
 import facade.ServerFacade;
 import model.*;
+import websocket.*;
 
 public class ChessClient {
     UserData user;
     AuthData auth;
+    String serverUrl;
     private final Map<Integer, GameData> gameListMap = new HashMap<>();
-
+    private WebsocketFacade ws;
+    private final NotificationHandler nh;
     private final ServerFacade server;
     private State state = State.LOGGEDOUT;
 
-    public ChessClient(String serverUrl) {
+    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
+        this.serverUrl = serverUrl;
+        this. nh = notificationHandler;
     }
 
     public String eval(String input) {
@@ -33,9 +38,18 @@ public class ChessClient {
         }
     }
 
-    private String handleGameplayCommands(String command, String[] params) {
-        return "NA";
+    private String handleGameplayCommands(String command, String[] params) throws ResponseException {
+        return switch(command) {
+            case "help" -> help();
+            case "printboard" -> printboard();
+            case "leave" -> leave();
+            case "move" -> move(params);
+            case "resign" -> resign();
+            case "showmoves" -> showmoves(params);
+            default -> "Unknown command. Type 'help' for options.";
+        };
     }
+
 
     private String handleLoggedInCommands(String command, String[] params) throws ResponseException {
         return switch (command) {
@@ -82,7 +96,7 @@ public class ChessClient {
                     - help: Show this help message.
                     - move <from> <to>: Make a move (e.g., move e2 e4).
                     - resign: Resign from the current game.
-                    - offerdraw: Offer a draw to your opponent.
+                    - printboard: Offer a draw to your opponent.
                     """;
         };
     }
@@ -113,7 +127,8 @@ public class ChessClient {
                     state = State.LOGGEDIN;
                     return String.format("%s%s %s%n", EscapeSequences.SET_TEXT_COLOR_BLUE, "Logged in as", auth.username());
                 }
-            } else {
+            }
+            else {
                 throw new ResponseException("Login failed: Missing auth token.");
             }
         }
@@ -122,7 +137,6 @@ public class ChessClient {
         }
         return "";
     }
-
 
     private String logout() throws ResponseException {
         assertSignedIn();
@@ -176,34 +190,10 @@ public class ChessClient {
         }
     }
 
-    private String playGame(String[] params) throws ResponseException {
-        if (params.length == 2) {
-            try {
-                int index = Integer.parseInt((params[0]));
-                if(gameListMap.containsKey(index)) {
-                    GameData gamedata = gameListMap.get(index);
-                    int gameId = gamedata.gameID();
-                    String color = params[1].toUpperCase();
-
-                    if (!color.equals("BLACK") && !color.equals("WHITE")) {
-                        throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
-                    }
-
-                    boolean responce = server.joinGame(gameId, color, auth);
-                    if (responce) {
-//                state = State.GAMEPLAY; //add later
-                        new PrintBoard(gamedata.game()).printBoard();
-                        return "Joined game " + params[0] + " as " + color + ".";
-                    }
-                }
-                else{
-                    throw new ResponseException("Invalid game number.");
-                }
-            } catch (NumberFormatException e) {
-                throw new ResponseException("Invalid game number format.");
-            }
+    private void assertSignedIn() throws ResponseException {
+        if (state == State.LOGGEDOUT) {
+            throw new ResponseException(400, "You must sign in");
         }
-        throw new ResponseException("Usage: playgame <number> <color>");
     }
 
     private String observeGame(String[] params) throws ResponseException {
@@ -223,9 +213,73 @@ public class ChessClient {
         throw new ResponseException("Usage: observegame <number>");
     }
 
-    private void assertSignedIn() throws ResponseException {
-        if (state == State.LOGGEDOUT) {
-            throw new ResponseException(400, "You must sign in");
+    private String playGame(String[] params) throws ResponseException {
+        if (params.length == 2) {
+            try {
+                int index = Integer.parseInt((params[0]));
+                if(gameListMap.containsKey(index)) {
+                    GameData gamedata = gameListMap.get(index);
+                    int gameId = gamedata.gameID();
+                    String color = params[1].toUpperCase();
+
+                    if (!color.equals("BLACK") && !color.equals("WHITE")) {
+                        throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
+                    }
+                    ws = new WebsocketFacade(serverUrl, nh);
+                    boolean response = ws.joinGame(gameId, color, auth);
+                    if (response) {
+                        state = State.GAMEPLAY;
+                        return "Joined game " + params[0] + " as " + color + ".";
+                    }
+                }
+                else{
+                    throw new ResponseException("Invalid game number.");
+                }
+            } catch (NumberFormatException e) {
+                throw new ResponseException("Invalid game number format.");
+            }
         }
+        throw new ResponseException("Usage: playgame <number> <color>");
     }
+
+    private String move(String[] params) throws ResponseException {
+        if (params.length == 2) {
+            String from = params[0];
+            String to = params[1];
+            boolean success = ws.makeMove(from, to, auth);
+            if (success) {
+                System.out.print("NOT FINISHED NEED TO UPDATE OPPONENT");
+                return String.format("Moved from %s to %s.", from, to);
+            }
+            throw new ResponseException("Failed to make the move.");
+        }
+        throw new ResponseException("Usage: move <from> <to>");
+    }
+
+    private String resign() throws ResponseException {
+        boolean success = ws.resignGame(auth);
+        if (success) {
+            ws = null;
+            state = State.LOGGEDIN;
+            return "You have resigned from the game.";
+        }
+        throw new ResponseException("Failed to resign.");
+    }
+
+    private String printboard() throws ResponseException {
+        if (state == State.GAMEPLAY) {
+            ws.printboard(auth);
+            return "";
+        }
+        throw new ResponseException(400, "You must join a game");
+    }
+
+    private String leave(){
+        return "COMPLETE";
+    }
+    private String showmoves(String[] params){
+        return "COMPLETE";
+    }
+
+
 }
