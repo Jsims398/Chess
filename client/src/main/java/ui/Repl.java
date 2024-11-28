@@ -1,11 +1,14 @@
 package ui;
 
+import websocket.NotificationHandler;
+import websocket.messages.Notification;
+
 import java.util.Scanner;
 
-public class Repl{
+public class Repl implements NotificationHandler {
     private final ChessClient client;
     public Repl(String serverUrl) {
-        client = new ChessClient(serverUrl);
+        client = new ChessClient(serverUrl, this);
     }
 
     public void run() {
@@ -46,5 +49,11 @@ public class Repl{
         System.out.println(String.format("%s%s%s%n", EscapeSequences.SET_TEXT_COLOR_BLUE,
                 "Quitting application...", "\u001B[0m"));
         System.exit(0);
+    }
+
+    @Override
+    public void notify(Notification notification) {
+        System.out.println(notification.message());
+        printPrompt();
     }
 }
