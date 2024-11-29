@@ -28,10 +28,10 @@ public class WebsocketFacade extends Endpoint {
 
         try{
             url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
+            URI uri = new URI(url + "/ws");
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            this.session = container.connectToServer(this, socketURI);
+            this.session = container.connectToServer(this, uri);
 
             this.session.addMessageHandler(new javax.websocket.MessageHandler.Whole<String>() {
                 @Override
