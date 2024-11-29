@@ -10,19 +10,25 @@ public class PrintBoard {
     private enum Color {WHITE, BLACK}
     private ChessPosition currentPosition;
     private final ChessGame game;
+    private String gamecolor;
 
-    public PrintBoard(ChessGame game) {
+    public PrintBoard(ChessGame game, String color) {
         this.game = game;
+        this.gamecolor = color;
     }
 
     public void printBoard() {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
         out.print("\n\n");
-        printBoardParts(out, Color.WHITE); // Light orientation
-        out.print("\n\n");
-        printBoardParts(out, Color.BLACK);  // Dark orientation
-        out.print("\n\n");
+        if(gamecolor.toUpperCase().equals("WHITE")) {
+            printBoardParts(out, Color.WHITE); // Light orientation
+            out.print("\n\n");
+        }
+        else {
+            printBoardParts(out, Color.BLACK);  // Dark orientation
+            out.print("\n\n");
+        }
     }
 
     private void printBoardParts(PrintStream out, Color orientation) {

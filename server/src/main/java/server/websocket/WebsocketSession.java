@@ -31,13 +31,13 @@ public class WebsocketSession {
         for (var connection : connections.get(gameID).values()) {
             if (connection.session.isOpen()) {
                 if (!connection.username.equals(excludedUser)) {
-                    connection.send(new Gson().toJson(message));
+                    connection.send(new Gson().toJson(message)); //sends to opponent
                 }
-            } else {
+            }
+            else {
                 removeList.add(connection);
             }
         }
-
         for (var connection : removeList) {
             connections.remove(connection.username);
         }

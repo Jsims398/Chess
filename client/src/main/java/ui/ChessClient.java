@@ -1,5 +1,6 @@
 package ui;
 
+import java.awt.*;
 import java.util.*;
 
 import chess.ChessMove;
@@ -11,6 +12,7 @@ import websocket.*;
 public class ChessClient {
     UserData user;
     AuthData auth;
+    String color;
     String serverUrl;
     private final Map<Integer, GameData> gameListMap = new HashMap<>();
     private WebsocketFacade ws;
@@ -43,7 +45,7 @@ public class ChessClient {
         return switch(command) {
             case "help" -> help();
             case "printboard" -> printboard();
-//            case "leave" -> leave();
+            case "leave" -> leave();
 //            case "move" -> move(params);
 //            case "resign" -> resign();
 //            case "showmoves" -> showmoves(params);
@@ -205,7 +207,7 @@ public class ChessClient {
                     throw new ResponseException("Invalid game number. Please list games first.");
                 }
                 GameData gamedata = gameListMap.get(Integer.parseInt(params[0]));
-                new PrintBoard(gamedata.game()).printBoard();
+                new PrintBoard(gamedata.game(), "WHITE").printBoard();
                 return "Observing game " + params[0] + ".";
             } catch (NumberFormatException e) {
                 throw new ResponseException("Invalid game number format.");
@@ -222,7 +224,7 @@ public class ChessClient {
                 if(gameListMap.containsKey(index)) {
                     GameData gamedata = gameListMap.get(index);
                     int gameId = gamedata.gameID();
-                    String color = params[1].toUpperCase();
+                    color = params[1].toUpperCase();
 
                     if (!color.equals("BLACK") && !color.equals("WHITE")) {
                         throw new ResponseException("Invalid color. Please choose 'BLACK' or 'WHITE'.");
@@ -231,7 +233,7 @@ public class ChessClient {
                     boolean response = server.joinGame(gameId, color, auth);
                     if (response) {
                         ws = new WebsocketFacade(serverUrl, nh, gameId, color);
-                        ws.connect(String.valueOf(auth));
+                        ws.connect(String.valueOf(auth.authToken()));
                         state = State.GAMEPLAY;
 
                         return "Joined game " + params[0] + " as " + color + ".";
@@ -274,15 +276,16 @@ public class ChessClient {
 
     private String printboard() throws ResponseException {
         if (state == State.GAMEPLAY) {
-            ws.printboard(auth);
+            ws.printboard(auth, color);
             return "";
         }
         throw new ResponseException(400, "You must join a game");
     }
 
-//    private String leave(){
-//        return "COMPLETE";
-//    }
+    private String leave(){
+        return "COMPLETE";
+
+    }
 //    private String showmoves(String[] params){
 //        return "COMPLETE";
 //    }
