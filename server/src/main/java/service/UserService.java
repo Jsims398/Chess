@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.util.UUID;
 
 public class UserService {
@@ -68,5 +69,13 @@ public class UserService {
             throw new RuntimeException(exception);
         }
         authDAO.clear();
+    }
+
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        var auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new DataAccessException("Error: auth token not in database");
+        }
+        return auth;
     }
 }

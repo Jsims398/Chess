@@ -233,6 +233,7 @@ public class ChessClient {
                         ws = new WebsocketFacade(serverUrl, nh, gameId, color);
                         ws.connect(String.valueOf(auth));
                         state = State.GAMEPLAY;
+
                         return "Joined game " + params[0] + " as " + color + ".";
                     }
                 }

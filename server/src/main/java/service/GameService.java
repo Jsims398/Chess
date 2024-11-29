@@ -103,4 +103,12 @@ public class GameService {
         gameDAO.clear();
         authDAO.clear();
     }
+
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        GameData game = gameDAO.getGame(gameID);
+        if (game == null){
+            throw new DataAccessException("Could not find game");
+        }
+        return game;
+    }
 }
