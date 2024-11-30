@@ -1,9 +1,7 @@
 package ui;
 
-import java.awt.*;
 import java.util.*;
 
-import chess.ChessMove;
 import facade.ResponseException;
 import facade.ServerFacade;
 import model.*;
@@ -45,7 +43,7 @@ public class ChessClient {
         return switch(command) {
             case "help" -> help();
             case "printboard" -> printboard();
-            case "leave" -> leave();
+            case "leave" -> leave(auth);
 //            case "move" -> move(params);
 //            case "resign" -> resign();
 //            case "showmoves" -> showmoves(params);
@@ -98,6 +96,7 @@ public class ChessClient {
                     Available commands in Gameplay:
                     - help: Show this help message.
                     - move <from> <to>: Make a move (e.g., move e2 e4).
+                    - leave: Leave game.
                     - resign: Resign from the current game.
                     - printboard: Offer a draw to your opponent.
                     """;
@@ -282,9 +281,11 @@ public class ChessClient {
         throw new ResponseException(400, "You must join a game");
     }
 
-    private String leave(){
-        return "COMPLETE";
-
+    private String leave(AuthData auth) throws ResponseException {
+        ws.leave(auth);
+        state = State.LOGGEDIN;
+        color = null;
+        return "Leaving game.";
     }
 //    private String showmoves(String[] params){
 //        return "COMPLETE";

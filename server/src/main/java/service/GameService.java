@@ -5,6 +5,7 @@ import model.*;
 import dataaccess.GameDAO;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameService {
@@ -52,7 +53,7 @@ public class GameService {
         }
         while (gameDAO.gameExists(gameID));
         try {
-            gameDAO.createGame(new GameData(gameID, null, null, name, null));
+            gameDAO.createGame(new GameData(gameID, null, null, name, null, GameData.Status.PLAYING));
         }
         catch (DataAccessException exception){
             throw new BadRequestException("failed to create game");
@@ -91,7 +92,7 @@ public class GameService {
             }
         }
         try {
-            gameDAO.updateGame(new GameData(gameID, whitePlayer, blackPlayer, gameData.gameName(), gameData.game()));
+            gameDAO.updateGame(new GameData(gameID, whitePlayer, blackPlayer, gameData.gameName(), gameData.game(), GameData.Status.PLAYING));
             return true;
         }
         catch(DataAccessException exception){
@@ -110,5 +111,23 @@ public class GameService {
             throw new DataAccessException("Could not find game");
         }
         return game;
+    }
+
+    public void leave(String user, Integer gameID) throws DataAccessException {
+        if (gameDAO.getGame(gameID) == null){
+            throw new DataAccessException("Error: bad request");
+        }
+        GameData origanal = gameDAO.getGame(gameID);
+        GameData updated;
+
+        if (Objects.equals(user, origanal.blackUsername())) {
+            updated = new GameData(gameID, origanal.whiteUsername(), null, origanal.gameName(), origanal.game(), GameData.Status.PLAYING);
+        } else if (Objects.equals(user, origanal.whiteUsername())) {
+            updated = new GameData(gameID, null, origanal.blackUsername(), origanal.gameName(), origanal.game(), GameData.Status.PLAYING);
+        } else {
+            return;
+        }
+
+        gameDAO.updateGame(updated);
     }
 }

@@ -1,15 +1,13 @@
 package websocket;
 
 import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
 import com.google.gson.Gson;
 import facade.ResponseException;
 import model.AuthData;
 import model.GameData;
-import ui.EscapeSequences;
 import ui.PrintBoard;
 import websocket.commands.Connect;
+import websocket.commands.Leave;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 
@@ -22,7 +20,6 @@ public class WebsocketFacade extends Endpoint {
     String teamColor;
     NotificationHandler notificationHandler;
     GameData gameData;
-    ChessBoard board;
 
     public WebsocketFacade(String url, NotificationHandler handler, Integer gameID, String teamColor) throws ResponseException {
 
@@ -64,10 +61,23 @@ public class WebsocketFacade extends Endpoint {
         try {
             var command = new Connect(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
 
+    }
+
+    public void leave(AuthData auth) throws ResponseException {
+        try {
+            var command = new Leave(UserGameCommand.CommandType.LEAVE, auth, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        }
+        catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+        gameID = null;
+        teamColor = null;
     }
 
 //    public void resignGame(String authToken) throws ResponseException {

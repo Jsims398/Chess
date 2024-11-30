@@ -24,6 +24,7 @@ public class WebsocketHandler {
     private final UserService userService;
     private final GameService gameService;
 
+
     public WebsocketHandler(UserService userService, GameService gameService) {
         this.userService = userService;
         this.gameService = gameService;
@@ -58,19 +59,14 @@ public class WebsocketHandler {
         if (game == null){
             return;
         }
-        String message;
-        String teamColor = "";
-        if(Objects.equals(game.blackUsername(), user)) {
-            teamColor = "BLACK";
-        }
-        if(Objects.equals(game.whiteUsername(), user)) {
-            teamColor = "WHITE";
-        }
 
-        if (teamColor.isEmpty()) {
+        String message;
+        String color = getColor(game, user);
+
+        if (color.isEmpty()) {
             message = String.format("%s joined %s as an observer", user, gameService.getGame(gameID).gameName());
         } else {
-            message = String.format("%s joined %s as %s\n >>>", user, gameService.getGame(gameID).gameName(), teamColor);
+            message = String.format("%s joined %s as %s\n >>>", user, gameService.getGame(gameID).gameName(), color);
         }
         var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
         notify(user, notification, gameID);
@@ -80,9 +76,43 @@ public class WebsocketHandler {
 
     private void move(String auth, Integer gameID, ChessMove move, Session session) throws IOException{
     }
-    private void leave(String auth, Integer gameID, Session session) throws IOException{
+    private void leave(String auth, Integer gameID, Session session) throws IOException, DataAccessException {
+        String user = checkAuth(auth);
+        if (Objects.equals(user, "badAuth")) {
+            connection.newSend(session , new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Error: failed to find auth"));
+            return;
+        }
+        GameData game = checkGame(user,gameID);
+        if (Objects.equals(game, null)) {
+            return;
+        }
+
+        if(getColor(game, user)!= null && game.status() != GameData.Status.ENDED) {
+            if (ended(user, game)) {
+                return;
+            } else {
+                gameService.leave(user, gameID);
+            }
+        }
+        String message = String.format("%s left the game.", user);
+        Notification notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        notify(user, notification, gameID);
+        connection.remove(user, gameID);
+
     }
+
     private void resign(String auth, Integer gameID, Session session) throws IOException {
+    }
+
+    private String getColor(GameData game, String user){
+        String teamColor = null;
+        if(Objects.equals(game.blackUsername(), user)) {
+            teamColor = "BLACK";
+        }
+        if(Objects.equals(game.whiteUsername(), user)) {
+            teamColor = "WHITE";
+        }
+        return teamColor;
     }
 
     private String checkAuth(String auth){
@@ -121,6 +151,16 @@ public class WebsocketHandler {
             connection.broadcast(username, load, gameID);
         } else {
             connection.send(username, load, gameID);
+        }
+    }
+
+    public Boolean ended(String username, GameData gameData) throws IOException {
+        if (gameData.status()== GameData.Status.ENDED){
+            error(username, "The game has ended.", gameData.gameID());
+            return true;
+        }
+        else {
+            return false;
         }
     }
 }
