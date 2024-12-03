@@ -2,6 +2,7 @@ package ui;
 
 import java.util.*;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -30,16 +31,26 @@ public class ChessClient {
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
-            var commnads = (tokens.length > 0) ? tokens[0] : "help";
+            var commands = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (state) {
-                case LOGGEDOUT -> handleLoggedOutCommands(commnads, params);
-                case LOGGEDIN -> handleLoggedInCommands(commnads, params);
-                case GAMEPLAY -> handleGameplayCommands(commnads, params);
+                case LOGGEDOUT -> handleLoggedOutCommands(commands, params);
+                case LOGGEDIN -> handleLoggedInCommands(commands, params);
+                case GAMEPLAY -> handleGameplayCommands(commands, params);
+                case OBSERVE -> handleObserveCommands(commands, params);
             };
         } catch (ResponseException exception) {
             return exception.getMessage();
         }
+    }
+
+    private String handleObserveCommands(String command, String[] params) throws ResponseException {
+        return switch(command) {
+            case "help" -> help();
+            case "leave" -> leave(auth);
+            case "printboard" -> printboard();
+            default -> "Unknown command. Type 'help' for options.";
+        };
     }
 
     private String handleGameplayCommands(String command, String[] params) throws ResponseException {
@@ -49,7 +60,7 @@ public class ChessClient {
             case "leave" -> leave(auth);
             case "move" -> move(params);
             case "resign" -> resign();
-//            case "showmoves" -> showmoves(params);
+            case "showmoves" -> showmoves(params);
             default -> "Unknown command. Type 'help' for options.";
         };
     }
@@ -101,7 +112,13 @@ public class ChessClient {
                     - move <from> <to>: Make a move (e.g., move e2 e4).
                     - leave: Leave game.
                     - resign: Resign from the current game.
-                    - printboard: Offer a draw to your opponent.
+                    - printboard: Prints out the board.
+                    """;
+            case OBSERVE -> """
+                    Available commands in Gameplay:
+                    - help: Show this help message.
+                    - printboard: Prints out the board.
+                    - leave: Leave game.
                     """;
         };
     }
@@ -209,14 +226,18 @@ public class ChessClient {
                     throw new ResponseException("Invalid game number. Please list games first.");
                 }
                 GameData gamedata = gameListMap.get(Integer.parseInt(params[0]));
-                ws = new WebSocketFacade(serverUrl, repl, gameID, ChessGame.TeamColor.WHITE);
-                ws.connect(authToken);
-                gameName = game.gameName();
+                ws = new WebsocketFacade(serverUrl, nh, gamedata.gameID(), null);
+                ws.connect(String.valueOf(auth.authToken()));
+                color = "WHITE";
                 state = State.OBSERVE;
-                return String.format("Observing game %s", gameName) + "\n" + help();
-                throw new ResponseException(400, "Expected: <game id>");
+                ws.loadGame(gamedata, color);
+                return String.format("Observing game %s", gameNumber) + "\n";
+            }
+            catch (Exception e) {
+                throw new ResponseException("Expected: <game id>");
             }
         }
+        return "Invalid usage: observegame <NUMBER>";
     }
 
     private String playGame(String[] params) throws ResponseException {
@@ -253,7 +274,7 @@ public class ChessClient {
     }
 
      public String move(String...params) throws ResponseException {
-         String piece = "EMPTY";
+        String piece = "EMPTY";
         if(params.length ==3){
             piece = params[2];
         }
@@ -299,7 +320,11 @@ public class ChessClient {
 
     }
     private String printboard() throws ResponseException {
-        if (state == State.GAMEPLAY) {
+        if (state == State.GAMEPLAY ) {
+            ws.printboard(auth, color);
+            return "";
+        }
+        if (state == State.OBSERVE ) {
             ws.printboard(auth, color);
             return "";
         }
@@ -312,9 +337,12 @@ public class ChessClient {
         color = null;
         return "Leaving game.";
     }
-//    private String showmoves(String[] params){
-//        return "COMPLETE";
-//    }
+
+    private String showmoves(String[] params){
+        ChessPosition position = makeChessPosition(params[0]);
+        ws.show(authToken, position);
+        return String.format("Displaying valid moves for %s", position);
+    }
 
 
 }

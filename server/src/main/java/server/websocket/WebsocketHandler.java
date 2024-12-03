@@ -65,9 +65,11 @@ public class WebsocketHandler {
         String message;
         String color = getColor(game, user);
 
-        if (color.isEmpty()) {
+        if (color == null) {
             message = String.format("%s joined %s as an observer", user, gameService.getGame(gameID).gameName());
-        } else {
+            loadGame(user, gameID, true);
+        }
+        else {
             message = String.format("%s joined %s as %s\n", user, gameService.getGame(gameID).gameName(), color);
         }
         var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);

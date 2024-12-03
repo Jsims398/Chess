@@ -27,7 +27,11 @@ public class PrintBoard {
             printBoardParts(out, Color.WHITE); // Light orientation
             System.out.printf("\n It is %s turn", game.getTeamTurn());
         }
-        else {
+        if(gamecolor == null){
+            printBoardParts(out, Color.WHITE); // Light orientation
+            System.out.printf("\n It is %s turn", game.getTeamTurn());
+        }
+        if(gamecolor.toUpperCase().equals("BLACK")) {
             printBoardParts(out, Color.BLACK);  // Dark orientation
             System.out.printf("\n It is %s turn", game.getTeamTurn());
         }
