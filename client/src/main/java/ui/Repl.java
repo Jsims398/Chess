@@ -1,6 +1,7 @@
 package ui;
 
 import model.GameData;
+import org.glassfish.grizzly.utils.EchoFilter;
 import websocket.NotificationHandler;
 import websocket.messages.*;
 import websocket.messages.ErrorMessage;
@@ -31,7 +32,7 @@ public class Repl implements NotificationHandler {
                 result = client.eval(input);
                 System.out.print(result);
             }
-            catch (Throwable exception) {
+            catch (Exception exception) {
                 var message = exception.toString();
                 System.out.print(message);
             }

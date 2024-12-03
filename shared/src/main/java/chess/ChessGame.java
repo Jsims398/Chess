@@ -113,7 +113,7 @@ public class ChessGame {
             setTeamTurn(getTeamTurn() == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK);
         }
         else{
-            throw new InvalidMoveException(String.format("Valid move: %b  Your Turn: %b", validMove, teamsTurn));
+            throw new InvalidMoveException(String.format("was the move valid: %b was it your turn: %b", validMove, teamsTurn));
         }
     }
 

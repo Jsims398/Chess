@@ -130,4 +130,8 @@ public class GameService {
 
         gameDAO.updateGame(updated);
     }
+
+    public void updateGame(GameData data) throws DataAccessException {
+        gameDAO.updateGame(data);
+    }
 }

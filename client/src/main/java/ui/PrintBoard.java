@@ -11,10 +11,12 @@ public class PrintBoard {
     private ChessPosition currentPosition;
     private final ChessGame game;
     private String gamecolor;
+    private ChessBoard board;
 
     public PrintBoard(ChessGame game, String color) {
         this.game = game;
         this.gamecolor = color;
+        this.board = game.getBoard();
     }
 
     public void printBoard() {
@@ -23,11 +25,11 @@ public class PrintBoard {
         out.print("\n\n");
         if(gamecolor.toUpperCase().equals("WHITE")) {
             printBoardParts(out, Color.WHITE); // Light orientation
-            out.print("\n\n");
+            System.out.printf("\n It is %s turn", game.getTeamTurn());
         }
         else {
             printBoardParts(out, Color.BLACK);  // Dark orientation
-            out.print("\n\n");
+            System.out.printf("\n It is %s turn", game.getTeamTurn());
         }
     }
 

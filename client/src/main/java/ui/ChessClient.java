@@ -2,6 +2,9 @@ package ui;
 
 import java.util.*;
 
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import facade.ResponseException;
 import facade.ServerFacade;
 import model.*;
@@ -44,8 +47,8 @@ public class ChessClient {
             case "help" -> help();
             case "printboard" -> printboard();
             case "leave" -> leave(auth);
-//            case "move" -> move(params);
-//            case "resign" -> resign();
+            case "move" -> move(params);
+            case "resign" -> resign();
 //            case "showmoves" -> showmoves(params);
             default -> "Unknown command. Type 'help' for options.";
         };
@@ -206,13 +209,14 @@ public class ChessClient {
                     throw new ResponseException("Invalid game number. Please list games first.");
                 }
                 GameData gamedata = gameListMap.get(Integer.parseInt(params[0]));
-                new PrintBoard(gamedata.game(), "WHITE").printBoard();
-                return "Observing game " + params[0] + ".";
-            } catch (NumberFormatException e) {
-                throw new ResponseException("Invalid game number format.");
+                ws = new WebSocketFacade(serverUrl, repl, gameID, ChessGame.TeamColor.WHITE);
+                ws.connect(authToken);
+                gameName = game.gameName();
+                state = State.OBSERVE;
+                return String.format("Observing game %s", gameName) + "\n" + help();
+                throw new ResponseException(400, "Expected: <game id>");
             }
         }
-        throw new ResponseException("Usage: observegame <number>");
     }
 
     private String playGame(String[] params) throws ResponseException {
@@ -248,31 +252,52 @@ public class ChessClient {
         throw new ResponseException("Usage: playgame <number> <color>");
     }
 
-//    private String move(String[] params) throws ResponseException {
-//        if (params.length == 2) {
-//            String from = params[0];
-//            String to = params[1];
-////            ChessMove move = new ChessMove(from, to , null);
-////            boolean success = ws.makeMove(move, auth);
-////            if (success) {
-////                System.out.print("NOT FINISHED NEED TO UPDATE OPPONENT");
-////                return String.format("Moved from %s to %s.", from, to);
-////            }
-//            throw new ResponseException("Failed to make the move.");
-//        }
-//        throw new ResponseException("Usage: move <from> <to>");
-//    }
+     public String move(String...params) throws ResponseException {
+         String piece = "EMPTY";
+        if(params.length ==3){
+            piece = params[2];
+        }
+        ChessMove move = makeMove(params[0], params[1], piece);
+        ws.move(move, auth);
+        printboard();
+        return "";
+    }
 
-//    private String resign() throws ResponseException {
-//        boolean success = ws.resignGame(auth);
-//        if (success) {
-//            ws = null;
-//            state = State.LOGGEDIN;
-//            return "You have resigned from the game.";
-//        }
-//        throw new ResponseException("Failed to resign.");
-//    }
+    public ChessMove makeMove(String from, String to, String promotion) {
+        ChessPosition start = newPosition(from);
+        ChessPosition end = newPosition(to);
 
+        ChessPiece.PieceType type = null;
+
+        if (!Objects.equals(promotion, "EMPTY")){
+            if (Objects.equals(promotion, "queen")){ type = ChessPiece.PieceType.QUEEN;}
+            if (Objects.equals(promotion, "rook")){ type = ChessPiece.PieceType.ROOK;}
+            if (Objects.equals(promotion, "bishop")){ type = ChessPiece.PieceType.BISHOP;}
+            if (Objects.equals(promotion, "knight")){ type = ChessPiece.PieceType.KNIGHT;}
+        }
+
+        return new ChessMove(start, end, type);
+    }
+
+    public ChessPosition newPosition(String position) {
+        int column = position.charAt(0) - 'a' + 1;
+        int row = Character.getNumericValue(position.charAt(1));
+        return new ChessPosition(row, column);
+    }
+
+    public String resign() throws ResponseException {
+        System.out.println("Are you sure you want to resign? yes or no");
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        if (Objects.equals(line, "yes")){
+            ws.resignGame(auth.authToken());
+            return "Attempting to resign.";
+        } else {
+            return "Cancelled resign.";
+        }
+
+
+    }
     private String printboard() throws ResponseException {
         if (state == State.GAMEPLAY) {
             ws.printboard(auth, color);

@@ -1,14 +1,12 @@
 package websocket;
 
-import chess.ChessBoard;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import facade.ResponseException;
 import model.AuthData;
 import model.GameData;
 import ui.PrintBoard;
-import websocket.commands.Connect;
-import websocket.commands.Leave;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.*;
 
 import javax.websocket.*;
@@ -80,35 +78,24 @@ public class WebsocketFacade extends Endpoint {
         teamColor = null;
     }
 
-//    public void resignGame(String authToken) throws ResponseException {
-//        try {
-//            var command = new Resign(UserGameCommand.CommandType.RESIGN, authToken, gameID);
-//            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-//        } catch (IOException e) {
-//            throw new ResponseException(500, e.getMessage());
-//        }
-//    }
+    public void resignGame(String authToken) throws ResponseException {
+        try {
+            var command = new Resign(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
 
-//    public boolean joinGame(int gameId, String color, AuthData auth) {
-//        try {
-//            String message = String.format("{\"action\":\"joinGame\",\"gameId\":%d,\"color\":\"%s\",\"authToken\":\"%s\"}",
-//                    gameId, color, auth.authToken());
-//            session.getBasicRemote().sendText(message);
-//            return true;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
 
-//    public boolean makeMove(ChessMove move, AuthData auth) throws ResponseException {
-//        try {
-//            var command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, auth, gameID, move);
-//            this.session.getBasicRemote().sendText(new Gson().toJson(command));
-//        } catch (IOException e) {
-//            throw new ResponseException(500, e.getMessage());
-//        }
-//    }
+    public void move(ChessMove move, AuthData auth) throws ResponseException {
+        try {
+            var command = new Move(UserGameCommand.CommandType.MAKE_MOVE, auth, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
 
     public void printboard(AuthData auth,String color) {
         loadGame(gameData, color);
@@ -118,9 +105,6 @@ public class WebsocketFacade extends Endpoint {
         this.gameData = game;
         notificationHandler.updateGame(game);
         new PrintBoard(game.game(), color).printBoard();
-        System.out.println("\n >>>");
+        System.out.println("\n");
     }
-//
-//    public void connect(AuthData auth) {
-//    }
 }

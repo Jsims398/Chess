@@ -142,7 +142,7 @@ public class GameSQLDAO implements GameDAO {
             statement.setString(1, game.whiteUsername());
             statement.setString(2, game.blackUsername());
             statement.setString(3, game.gameName());
-            statement.setString(4, new Gson().toJson(game));
+            statement.setString(4, new Gson().toJson(game.game()));
             statement.setInt(6, game.gameID());
             statement.setString(5,String.valueOf(game.status()));
             int rowsAffected = statement.executeUpdate();
