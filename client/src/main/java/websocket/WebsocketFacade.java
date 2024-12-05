@@ -1,6 +1,7 @@
 package websocket;
 
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import facade.ResponseException;
 import model.AuthData;
@@ -12,6 +13,9 @@ import websocket.messages.*;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class WebsocketFacade extends Endpoint {
     Session session;
     Integer gameID;
@@ -97,14 +101,29 @@ public class WebsocketFacade extends Endpoint {
         }
     }
 
-    public void printboard(AuthData auth,String color) {
+    public void printboard(String color) {
         loadGame(gameData, color);
     }
 
     public void loadGame(GameData game, String color) {
         this.gameData = game;
         notificationHandler.updateGame(game);
-        new PrintBoard(game.game(), color).printBoard();
+        new PrintBoard(game.game(), color,null).printBoard();
         System.out.println("\n");
+    }
+
+    public void show(ChessPosition location) throws Exception {
+        ArrayList<ChessPosition> moves = new ArrayList<>();
+        try {
+            Collection<ChessMove> spots = gameData.game().validMoves(location);
+            for (var spot : spots) {
+                moves.add(spot.getEndPosition());
+            }
+            moves.add(location);
+            new PrintBoard(gameData.game(), teamColor, moves).printBoard();
+        }
+        catch (Exception e){
+            throw new Exception("error");
+        }
     }
 }

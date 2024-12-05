@@ -2,7 +2,6 @@ package ui;
 
 import java.util.*;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -37,14 +36,14 @@ public class ChessClient {
                 case LOGGEDOUT -> handleLoggedOutCommands(commands, params);
                 case LOGGEDIN -> handleLoggedInCommands(commands, params);
                 case GAMEPLAY -> handleGameplayCommands(commands, params);
-                case OBSERVE -> handleObserveCommands(commands, params);
+                case OBSERVE -> handleObserveCommands(commands);
             };
         } catch (ResponseException exception) {
             return exception.getMessage();
         }
     }
 
-    private String handleObserveCommands(String command, String[] params) throws ResponseException {
+    private String handleObserveCommands(String command) throws ResponseException {
         return switch(command) {
             case "help" -> help();
             case "leave" -> leave(auth);
@@ -110,6 +109,7 @@ public class ChessClient {
                     Available commands in Gameplay:
                     - help: Show this help message.
                     - move <from> <to>: Make a move (e.g., move e2 e4).
+                    - showmoves <location> Shows move for piece at the location.
                     - leave: Leave game.
                     - resign: Resign from the current game.
                     - printboard: Prints out the board.
@@ -321,11 +321,11 @@ public class ChessClient {
     }
     private String printboard() throws ResponseException {
         if (state == State.GAMEPLAY ) {
-            ws.printboard(auth, color);
+            ws.printboard(color);
             return "";
         }
         if (state == State.OBSERVE ) {
-            ws.printboard(auth, color);
+            ws.printboard(color);
             return "";
         }
         throw new ResponseException(400, "You must join a game");
@@ -339,9 +339,23 @@ public class ChessClient {
     }
 
     private String showmoves(String[] params){
-        ChessPosition position = makeChessPosition(params[0]);
-        ws.show(authToken, position);
-        return String.format("Displaying valid moves for %s", position);
+        if(params.length !=1){
+            System.out.print("\nInvalid input");
+        }
+        if(params[0].length() !=2){
+            System.out.print("\nInvalid input");
+        }
+        int col = params[0].charAt(0) - 'a' + 1;
+        int row = Character.getNumericValue(params[0].charAt(1));
+
+        ChessPosition location = new ChessPosition(row, col);
+        try {
+            ws.show(location);
+        }
+        catch (Exception e){
+            return "No moves available or invalid location";
+        }
+        return String.format("\nDisplaying valid moves for %s", location);
     }
 
 

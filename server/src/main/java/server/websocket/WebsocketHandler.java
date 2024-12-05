@@ -34,7 +34,7 @@ public class WebsocketHandler {
     }
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
+    public void onMessage(Session session, String message) {
         try {
             UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
             switch (userGameCommand.getCommandType()) {
@@ -118,17 +118,8 @@ public class WebsocketHandler {
         notify(username, new Notification(ServerMessage.ServerMessageType.NOTIFICATION,
                 String.format("%s moved %s to %s", username, move.getStartPosition(), move.getEndPosition())), gameID);
 
-        checksOrMatesCheck(newGame, newGameData);
+        checkOrCheckMate(newGame, newGameData);
 
-    }
-
-    private boolean observer(String username, GameData gameData) throws IOException {
-        ChessGame.TeamColor teamColor = ChessGame.TeamColor.valueOf(getColor(gameData, username));
-        if (teamColor == null) {
-            error(username, "Not a player. Cannot make moves.", gameData.gameID());
-            return true;
-        }
-        return false;
     }
 
     private void leave(String auth, Integer gameID, Session session) throws IOException, DataAccessException {
@@ -158,9 +149,6 @@ public class WebsocketHandler {
 
     private Boolean check(GameData gameData, String username) throws IOException {
         if (gameData == null){
-            return false;
-        }
-        if(observer(username, gameData)) {
             return false;
         }
         return !ended(username, gameData);
@@ -255,7 +243,7 @@ public class WebsocketHandler {
         }
     }
 
-    public void checksOrMatesCheck(ChessGame game, GameData gameData) throws IOException {
+    public void checkOrCheckMate(ChessGame game, GameData gameData) throws IOException {
         String checked = null;
         if (game.isInCheck(ChessGame.TeamColor.BLACK)){
             checked = gameData.blackUsername();

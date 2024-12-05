@@ -4,6 +4,7 @@ import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class PrintBoard {
     private static final int BOARD_SIZE = 8;
@@ -11,27 +12,27 @@ public class PrintBoard {
     private ChessPosition currentPosition;
     private final ChessGame game;
     private String gamecolor;
-    private ChessBoard board;
+    private ArrayList<ChessPosition> positions;
 
-    public PrintBoard(ChessGame game, String color) {
+    public PrintBoard(ChessGame game, String color, ArrayList<ChessPosition> positions) {
         this.game = game;
         this.gamecolor = color;
-        this.board = game.getBoard();
+        this.positions = positions;
     }
 
     public void printBoard() {
         PrintStream out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(EscapeSequences.ERASE_SCREEN);
         out.print("\n\n");
-        if(gamecolor.toUpperCase().equals("WHITE")) {
+        if(gamecolor.equalsIgnoreCase("WHITE")) {
             printBoardParts(out, Color.WHITE); // Light orientation
             System.out.printf("\n It is %s turn", game.getTeamTurn());
         }
-        if(gamecolor == null){
-            printBoardParts(out, Color.WHITE); // Light orientation
-            System.out.printf("\n It is %s turn", game.getTeamTurn());
-        }
-        if(gamecolor.toUpperCase().equals("BLACK")) {
+//        if(gamecolor == null){
+//            printBoardParts(out, Color.WHITE); // Light orientation
+//            System.out.printf("\n It is %s turn", game.getTeamTurn());
+//        }
+        if(gamecolor.equalsIgnoreCase("BLACK")) {
             printBoardParts(out, Color.BLACK);  // Dark orientation
             System.out.printf("\n It is %s turn", game.getTeamTurn());
         }
@@ -54,12 +55,36 @@ public class PrintBoard {
     private void printRow(PrintStream out, Color orientation, int row) {
         for (int col = 0; col < BOARD_SIZE; col++) {
             boolean isLightSquare = (row + col) % 2 == 0;
-            squareColor(out, isLightSquare);
+            ChessPosition square = new ChessPosition(currentPosition.getRow(), currentPosition.getColumn());
+
+            if (isHighlighted(square)) {
+                changeColor(out);
+            } else {
+                squareColor(out, isLightSquare);
+            }
+
             printPiece(out);
             updateColumn(orientation);
         }
         moveColumn(orientation);
     }
+
+    private boolean isHighlighted(ChessPosition square) {
+        if (positions != null) {
+            for (ChessPosition pos : positions) {
+                if (pos.equals(square)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void changeColor(PrintStream out) {
+        out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+        out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
+    }
+
     private void printHeaders(PrintStream out, Color orientation) {
         resetWhite(out);
         String[] labels = (orientation == Color.WHITE) ?
