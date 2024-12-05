@@ -58,8 +58,8 @@ class DAOTests {
     class GameDAOTests {
         private GameDAO gameDAO;
         ChessGame game = new ChessGame();
-        private final GameData testGame = new GameData(1, "whiteUser", "blackUser", "TestGame", game);
-        private final GameData invalidGame = new GameData(-1, null, null, null, null);
+        private final GameData testGame = new GameData(1, "whiteUser", "blackUser", "TestGame", game, GameData.Status.PLAYING);
+        private final GameData invalidGame = new GameData(-1, null, null, null, null, null);
 
         @BeforeEach
         void setUp() {

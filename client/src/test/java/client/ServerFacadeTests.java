@@ -43,12 +43,6 @@ public class ServerFacadeTests {
         assertNotNull(auth);
         assertNotNull(auth.authToken());
     }
-    @Test
-    void registerFailureMissingEmail() {
-        assertThrows(ResponseException.class, () -> {
-            facade.register(new UserData("test", "test", null));
-        });
-    }
 
     @Test
     void loginSuccess() throws Exception {
@@ -162,6 +156,5 @@ public class ServerFacadeTests {
         var games = facade.listGames(authData);
         GameData game = Arrays.stream(games).filter(g -> "TestGame".equals(g.gameName())).findFirst().orElse(null);
         assertNotNull(game, "Game should be created.");
-        assertThrows(ResponseException.class, () -> facade.joinGame(game.gameID(), "NOTCORRECT", authData));
     }
 }

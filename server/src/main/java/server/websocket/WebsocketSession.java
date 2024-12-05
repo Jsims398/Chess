@@ -47,7 +47,8 @@ public class WebsocketSession {
         var connection = connections.get(gameID).get(user);
         if (connection.session.isOpen()) {
             connection.send(new Gson().toJson(message));
-        } else {
+        }
+        else {
             connections.remove(connection.username);
             var msg = String.format("%s is not connected", user);
             System.out.println(msg);

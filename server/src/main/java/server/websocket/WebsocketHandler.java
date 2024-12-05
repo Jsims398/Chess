@@ -67,21 +67,28 @@ public class WebsocketHandler {
 
         if (color == null) {
             message = String.format("%s joined %s as an observer", user, gameService.getGame(gameID).gameName());
-            loadGame(user, gameID, true);
+            loadGame(user, gameID, false);
         }
         else {
             message = String.format("%s joined %s as %s\n", user, gameService.getGame(gameID).gameName(), color);
         }
         var notification = new Notification(ServerMessage.ServerMessageType.NOTIFICATION, message);
         notify(user, notification, gameID);
-
-        loadGame(user, gameID, false);
+        if(color != null) {
+            loadGame(user, gameID, false);
+        }
     }
 
     private void move(String auth, Integer gameID, ChessMove move, Session session) throws IOException, DataAccessException {
         var username = checkAuth(auth);
-        if (Objects.equals(username, "badAuth")) {
-            connection.newSend(session , new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Error: Bad auth")); return;}
+        if (Objects.equals(username, "EMPTY")) {
+            connection.newSend(session , new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Error: Bad auth"));
+            return;
+        }
+        if (Objects.equals(username, "observer")) {
+            connection.newSend(session , new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Error: Cant move as an observer"));
+            return;
+        }
 
         GameData gameData = checkGame(username, gameID);
         boolean value = check(gameData, username);
@@ -156,8 +163,14 @@ public class WebsocketHandler {
 
     private void resign(String auth, Integer gameID, Session session) throws IOException {
         var username = checkAuth(auth);
-        if (Objects.equals(username, "badAuth")) {connection.newSend(session ,
-                new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Bad auth")); return;}
+        if (Objects.equals(username, "EMPTY")) {connection.newSend(session ,
+                new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Bad auth"));
+            return;
+        }
+        if (Objects.equals(username, "observer")) {connection.newSend(session ,
+                new ErrorMessage(ServerMessage.ServerMessageType.ERROR,"Not able to resign game"));
+            return;
+        }
 
         GameData gameData = checkGame(username, gameID);
 
@@ -260,11 +273,11 @@ public class WebsocketHandler {
         String trapped = null;
         String attacker = null;
 
-        if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
             trapped = gameData.blackUsername();
             attacker = gameData.whiteUsername();
         }
-        else if (game.isInCheckmate(ChessGame.TeamColor.WHITE)){
+        else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)){
             attacker = gameData.blackUsername();
             trapped = gameData.whiteUsername();
         }

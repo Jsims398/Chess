@@ -28,10 +28,12 @@ public class PrintBoard {
             printBoardParts(out, Color.WHITE); // Light orientation
             System.out.printf("\n It is %s turn", game.getTeamTurn());
         }
-//        if(gamecolor == null){
-//            printBoardParts(out, Color.WHITE); // Light orientation
-//            System.out.printf("\n It is %s turn", game.getTeamTurn());
-//        }
+
+        if(gamecolor.equalsIgnoreCase("OBSERVER")){
+            printBoardParts(out, Color.WHITE); // Light orientation
+            System.out.printf("\n It is %s turn", game.getTeamTurn());
+        }
+
         if(gamecolor.equalsIgnoreCase("BLACK")) {
             printBoardParts(out, Color.BLACK);  // Dark orientation
             System.out.printf("\n It is %s turn", game.getTeamTurn());

@@ -108,7 +108,7 @@ public class ChessClient {
             case GAMEPLAY -> """
                     Available commands in Gameplay:
                     - help: Show this help message.
-                    - move <from> <to>: Make a move (e.g., move e2 e4).
+                    - move <from> <to> <promote piece>: Make a move (e.g., move e2 e4) and promotion if needed (e.g. queen, rook, knight).
                     - showmoves <location> Shows move for piece at the location.
                     - leave: Leave game.
                     - resign: Resign from the current game.
@@ -226,11 +226,11 @@ public class ChessClient {
                     throw new ResponseException("Invalid game number. Please list games first.");
                 }
                 GameData gamedata = gameListMap.get(Integer.parseInt(params[0]));
-                ws = new WebsocketFacade(serverUrl, nh, gamedata.gameID(), null);
+                ws = new WebsocketFacade(serverUrl, nh, gamedata.gameID(), "OBSERVER");
                 ws.connect(String.valueOf(auth.authToken()));
-                color = "WHITE";
+                color = "OBSERVER";
                 state = State.OBSERVE;
-                ws.loadGame(gamedata, color);
+//                ws.loadGame(gamedata, color);
                 return String.format("Observing game %s", gameNumber) + "\n";
             }
             catch (Exception e) {
@@ -274,13 +274,17 @@ public class ChessClient {
     }
 
      public String move(String...params) throws ResponseException {
+         if (params.length < 2) {
+             return "Invalid move";
+         }
         String piece = "EMPTY";
         if(params.length ==3){
-            piece = params[2];
+            piece = params[2].toUpperCase();
         }
         ChessMove move = makeMove(params[0], params[1], piece);
+
         ws.move(move, auth);
-        printboard();
+//        printboard();
         return "";
     }
 

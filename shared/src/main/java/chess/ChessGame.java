@@ -42,7 +42,8 @@ public class ChessGame {
      */
     public enum TeamColor {
         WHITE,
-        BLACK;
+        BLACK,
+        OBSERVER;
 
         public String toString(){
             if(this == WHITE){

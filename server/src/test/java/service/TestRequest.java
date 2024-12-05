@@ -103,7 +103,7 @@ class TestGameService extends GameService {
             throw new UnauthorizedException();
         }
         HashSet<GameData> games = new HashSet<>();
-        games.add(new GameData(1, null, null, "TestGame", null));
+        games.add(new GameData(1, null, null, "TestGame", null, null));
         return games;
     }
 
