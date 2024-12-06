@@ -119,6 +119,7 @@ public class ChessClient {
                     - help: Show this help message.
                     - printboard: Prints out the board.
                     - leave: Leave game.
+                    - showmoves <location> Shows move for piece at the location.
                     """;
         };
     }

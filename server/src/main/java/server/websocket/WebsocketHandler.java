@@ -123,10 +123,14 @@ public class WebsocketHandler {
         loadGame(null, gameID, true);
 
         notify(username, new Notification(ServerMessage.ServerMessageType.NOTIFICATION,
-                String.format("%s moved %s to %s", username, move.getStartPosition(), move.getEndPosition())), gameID);
+                String.format("%s moved %s-%s to %s-%s", username, getCharAt(move.getStartPosition().getRow()), move.getStartPosition().getColumn(), getCharAt(move.getEndPosition().getRow()),move.getEndPosition().getColumn() )), gameID);
 
         checkOrCheckMate(newGame, newGameData);
 
+    }
+
+    private char getCharAt(int index) {
+        return (char) ('a' + index);
     }
 
     private void leave(String auth, Integer gameID, Session session) throws IOException, DataAccessException {
